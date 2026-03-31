@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Jiho's Learning Adventure</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b8cee",
+                        "mint": "#98FFD9",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Spline Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Spline Sans', sans-serif;
+        }
+        .soft-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            transition: all 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased">
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="w-72 bg-white dark:bg-slate-900 h-full flex flex-col p-6 border-r border-primary/10">
+<div class="flex items-center gap-4 mb-10 px-2">
+<div class="size-12 rounded-full bg-primary flex items-center justify-center text-white shadow-lg">
+<span class="material-symbols-outlined text-3xl">school</span>
+</div>
+<div>
+<h2 class="font-bold text-xl tracking-tight">EduQuest</h2>
+<p class="text-xs font-semibold text-primary/60 uppercase tracking-widest">Premium AI</p>
+</div>
+</div>
+<nav class="flex-1 space-y-3">
+<a class="flex items-center gap-4 px-5 py-4 rounded-full bg-primary text-white shadow-md transition-all" href="#">
+<span class="material-symbols-outlined fill-1">auto_stories</span>
+<span class="font-bold">My Learning</span>
+</a>
+<a class="flex items-center gap-4 px-5 py-4 rounded-full hover:bg-primary/10 text-slate-600 dark:text-slate-300 transition-all" href="#">
+<span class="material-symbols-outlined">smart_toy</span>
+<span class="font-semibold">AI Tutor</span>
+</a>
+<a class="flex items-center gap-4 px-5 py-4 rounded-full hover:bg-primary/10 text-slate-600 dark:text-slate-300 transition-all" href="#">
+<span class="material-symbols-outlined">stars</span>
+<span class="font-semibold">Achievements</span>
+</a>
+<a class="flex items-center gap-4 px-5 py-4 rounded-full hover:bg-primary/10 text-slate-600 dark:text-slate-300 transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-semibold">Settings</span>
+</a>
+</nav>
+<div class="mt-auto bg-mint/20 p-6 rounded-xl border-2 border-dashed border-mint/40">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-primary">local_fire_department</span>
+<span class="font-bold text-slate-800">5 Day Streak!</span>
+</div>
+<p class="text-xs text-slate-600 font-medium leading-relaxed">Keep it up, John &amp; Josh! You're a math superstar today.</p>
+</div>
+</aside>
+<!-- Main Dashboard Content -->
+<main class="flex-1 overflow-y-auto p-8 lg:p-12">
+<!-- Top Greeting Section -->
+<header class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+<div class="space-y-1">
+<h1 class="text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white">
+                        Hi, John &amp; Josh! Ready for today's quest?
+                    </h1>
+<p class="text-lg text-slate-500 font-medium">Level 5 Explorer • 1,250 XP earned this week</p>
+</div>
+<div class="flex items-center gap-3 bg-white dark:bg-slate-800 p-2 rounded-full shadow-sm pr-6 border border-slate-100 dark:border-slate-700">
+<div class="size-12 rounded-full overflow-hidden border-2 border-primary">
+<img alt="Jiho's Avatar" class="w-full h-full object-cover" data-alt="Playful cartoon avatar of a child with glasses" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_BOObFlC0ShokF9UC5Rm2nfqdwSq1cPkFBmTkcjvajvfO_eDpW7ftTdUAlXVQFt8o_v21joc-18-SDbO7hS9d5zu3cKu141h8_kDmuJ4MsnRrDQL3rp-feKDg2kvCzSaJRWr__Q5JbyQflr4AGD6Jt4Wr79RDplGylShweP2dld7bdoQ8uosJSRjDmLsqVXnWtIJlpRKjYMXmxrasMCWHcgx7wpYf2IcT6H05ImQTWID0FRiYDA4hNOfMlKD55wiuhXT8WMqf6g"/>
+</div>
+<div>
+<p class="text-xs font-bold text-primary uppercase">Current Hero</p>
+<p class="font-bold">John &amp; Josh</p>
+</div>
+</div>
+</header>
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+<!-- Today's Lesson Progress Card -->
+<section class="xl:col-span-2 space-y-6">
+<div class="bg-white dark:bg-slate-800 rounded-xl p-8 soft-shadow relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-20 -mt-20 group-hover:scale-110 transition-transform duration-500"></div>
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-6">
+<span class="px-4 py-1.5 bg-mint/30 text-emerald-700 dark:text-emerald-400 rounded-full text-sm font-bold tracking-wide uppercase">Active Quest</span>
+<span class="px-4 py-1.5 bg-slate-100 dark:bg-slate-700 rounded-full text-sm font-bold text-slate-600 dark:text-slate-300">Biology</span>
+</div>
+<div class="flex flex-col md:flex-row gap-8 items-start">
+<div class="size-32 shrink-0 bg-blue-50 dark:bg-blue-900/30 rounded-full flex items-center justify-center shadow-inner">
+<span class="material-symbols-outlined text-6xl text-primary animate-pulse">waves</span>
+</div>
+<div class="flex-1 space-y-4">
+<h3 class="text-3xl font-extrabold text-slate-900 dark:text-white leading-tight">Exploring the Deep Sea</h3>
+<p class="text-slate-500 dark:text-slate-400 text-lg leading-relaxed">
+                                        Dive down 2,000 meters to meet the giant squid and glowing jellyfish!
+                                    </p>
+<div class="pt-4">
+<div class="flex justify-between items-center mb-3">
+<span class="text-sm font-bold text-slate-400">QUEST PROGRESS</span>
+<span class="text-sm font-black text-primary">60%</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-700 h-4 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full transition-all duration-1000" style="width: 60%;"></div>
+</div>
+</div>
+<div class="pt-4">
+<button class="bg-primary hover:bg-primary/90 text-white px-10 py-5 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all card-hover flex items-center gap-3">
+<span>Continue Adventure</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Chat with AI Tutor Section -->
+<div class="bg-white dark:bg-slate-800 rounded-xl p-8 soft-shadow border-2 border-primary/10">
+<div class="flex items-center justify-between mb-8">
+<div class="flex items-center gap-4">
+<div class="size-14 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl text-primary">smart_toy</span>
+</div>
+<div>
+<h4 class="text-2xl font-bold">Ask Robo-Friend</h4>
+<p class="text-slate-500 font-medium">I'm online and ready to help!</p>
+</div>
+</div>
+<button class="p-3 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-slate-500">more_horiz</span>
+</button>
+</div>
+<div class="space-y-4 mb-8">
+<div class="flex items-start gap-4">
+<div class="size-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-xl">robot_2</span>
+</div>
+<div class="bg-slate-100 dark:bg-slate-700 p-5 rounded-xl rounded-tl-none max-w-md">
+<p class="text-slate-700 dark:text-slate-200 font-medium">
+                                        Beep boop! Do you want to learn more about how giant squids breathe underwater, or should we talk about glowing fish?
+                                    </p>
+</div>
+</div>
+</div>
+<div class="flex flex-wrap gap-3 mb-6">
+<button class="px-6 py-3 rounded-full border-2 border-primary/20 hover:bg-primary/5 text-primary font-bold transition-all text-sm">Tell me a joke!</button>
+<button class="px-6 py-3 rounded-full border-2 border-primary/20 hover:bg-primary/5 text-primary font-bold transition-all text-sm">How big are squids?</button>
+<button class="px-6 py-3 rounded-full border-2 border-primary/20 hover:bg-primary/5 text-primary font-bold transition-all text-sm">Help with math</button>
+</div>
+<div class="relative">
+<input class="w-full pl-6 pr-16 py-5 rounded-full bg-slate-100 dark:bg-slate-700 border-none focus:ring-2 focus:ring-primary font-medium" placeholder="Type your question here..." type="text"/>
+<button class="absolute right-2 top-2 size-12 rounded-full bg-primary text-white flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Sticker Board Sidebar Area -->
+<section class="space-y-8">
+<div class="bg-white dark:bg-slate-800 rounded-xl p-8 soft-shadow h-full flex flex-col">
+<div class="flex items-center justify-between mb-8">
+<h4 class="text-2xl font-bold flex items-center gap-3">
+<span class="material-symbols-outlined text-amber-400">emoji_events</span>
+                                Sticker Board
+                            </h4>
+<span class="text-primary font-bold">12 / 24</span>
+</div>
+<div class="grid grid-cols-2 gap-6 flex-1">
+<!-- Earned Sticker -->
+<div class="group cursor-pointer">
+<div class="aspect-square rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mb-2 border-4 border-white dark:border-slate-700 shadow-md transform transition group-hover:rotate-12">
+<span class="material-symbols-outlined text-4xl text-blue-500">auto_stories</span>
+</div>
+<p class="text-center text-xs font-bold text-slate-500 uppercase tracking-tight">Star Reader</p>
+</div>
+<!-- Earned Sticker -->
+<div class="group cursor-pointer">
+<div class="aspect-square rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center mb-2 border-4 border-white dark:border-slate-700 shadow-md transform transition group-hover:rotate-12">
+<span class="material-symbols-outlined text-4xl text-emerald-500">functions</span>
+</div>
+<p class="text-center text-xs font-bold text-slate-500 uppercase tracking-tight">Math Wizard</p>
+</div>
+<!-- Earned Sticker -->
+<div class="group cursor-pointer">
+<div class="aspect-square rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center mb-2 border-4 border-white dark:border-slate-700 shadow-md transform transition group-hover:rotate-12">
+<span class="material-symbols-outlined text-4xl text-amber-500">rocket_launch</span>
+</div>
+<p class="text-center text-xs font-bold text-slate-500 uppercase tracking-tight">Space Cadet</p>
+</div>
+<!-- Locked Sticker -->
+<div class="group">
+<div class="aspect-square rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mb-2 border-4 border-dashed border-slate-200 dark:border-slate-600 opacity-50">
+<span class="material-symbols-outlined text-4xl text-slate-400">lock</span>
+</div>
+<p class="text-center text-xs font-bold text-slate-400 uppercase tracking-tight">Locked</p>
+</div>
+<!-- Locked Sticker -->
+<div class="group">
+<div class="aspect-square rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mb-2 border-4 border-dashed border-slate-200 dark:border-slate-600 opacity-50">
+<span class="material-symbols-outlined text-4xl text-slate-400">lock</span>
+</div>
+<p class="text-center text-xs font-bold text-slate-400 uppercase tracking-tight">Locked</p>
+</div>
+<!-- Locked Sticker -->
+<div class="group">
+<div class="aspect-square rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mb-2 border-4 border-dashed border-slate-200 dark:border-slate-600 opacity-50">
+<span class="material-symbols-outlined text-4xl text-slate-400">lock</span>
+</div>
+<p class="text-center text-xs font-bold text-slate-400 uppercase tracking-tight">Locked</p>
+</div>
+</div>
+<div class="mt-8">
+<button class="w-full py-4 rounded-full bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-primary/10 hover:text-primary transition-all flex items-center justify-center gap-2">
+<span>View All Badges</span>
+<span class="material-symbols-outlined">expand_more</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+<!-- Subject Grid Preview -->
+<section class="mt-12">
+<h4 class="text-2xl font-extrabold mb-8 text-slate-900 dark:text-white">Explore Subjects</h4>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+<div class="p-8 rounded-xl bg-white dark:bg-slate-800 soft-shadow card-hover cursor-pointer border-b-4 border-blue-400 flex flex-col items-center text-center gap-4">
+<div class="size-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
+<span class="material-symbols-outlined text-4xl">science</span>
+</div>
+<p class="font-bold text-lg">Science</p>
+</div>
+<div class="p-8 rounded-xl bg-white dark:bg-slate-800 soft-shadow card-hover cursor-pointer border-b-4 border-purple-400 flex flex-col items-center text-center gap-4">
+<div class="size-16 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600">
+<span class="material-symbols-outlined text-4xl">calculate</span>
+</div>
+<p class="font-bold text-lg">Math</p>
+</div>
+<div class="p-8 rounded-xl bg-white dark:bg-slate-800 soft-shadow card-hover cursor-pointer border-b-4 border-amber-400 flex flex-col items-center text-center gap-4">
+<div class="size-16 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600">
+<span class="material-symbols-outlined text-4xl">history_edu</span>
+</div>
+<p class="font-bold text-lg">History</p>
+</div>
+<div class="p-8 rounded-xl bg-white dark:bg-slate-800 soft-shadow card-hover cursor-pointer border-b-4 border-emerald-400 flex flex-col items-center text-center gap-4">
+<div class="size-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600">
+<span class="material-symbols-outlined text-4xl">brush</span>
+</div>
+<p class="font-bold text-lg">Arts</p>
+</div>
+</div>
+</section>
+</main>
+</div>
+</body></html>

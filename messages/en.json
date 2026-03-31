@@ -1,0 +1,32 @@
+{
+    "Index": {
+        "title": "AI Study Buddy",
+        "description": "Unlock your child's potential with AI-powered personalized learning.",
+        "hero": {
+            "badge": "Personalized Learning for the Future",
+            "headline": "Empower Your Child to Learn Smarter, Not Just Faster",
+            "subheadline": "AI Study Buddy provides step-by-step explanations and similar practice problems tailored to your child's grade level and understanding.",
+            "getStarted": "Get Started",
+            "viewDemo": "View Demo"
+        },
+        "features": {
+            "ocr": {
+                "title": "AI Image Analysis",
+                "desc": "Take a photo of any problem and get instant, kid-friendly explanations."
+            },
+            "stepByStep": {
+                "title": "Step-by-Step Concepts",
+                "desc": "We don't just give answers. We teach the 'why' and 'how' behind every problem."
+            },
+            "practice": {
+                "title": "Smart Practice",
+                "desc": "AI generates similar problems to ensure mastery of the concept."
+            }
+        }
+    },
+    "Common": {
+        "language": "Language",
+        "dashboard": "Dashboard",
+        "profile": "Profile"
+    }
+}

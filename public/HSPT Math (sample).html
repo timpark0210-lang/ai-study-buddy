@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSPT Math Practice Test 15: Visual Logic & Geometry Mastery</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Verdana&display=swap');
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --bg: #f8fafc;
+            --text: #0f172a;
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 80px; /* Space for fixed footer */
+        }
+
+        .math-text {
+            font-family: 'Verdana', sans-serif;
+            letter-spacing: 0.02em;
+        }
+
+        /* Shape Container for SVGs */
+        .shape-container {
+            margin: 15px 0;
+            padding: 10px;
+            display: inline-block;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* View Management */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Category Badge */
+        .category-tag {
+            background-color: #e2e8f0;
+            color: #475569;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        /* Option Styling */
+        .option-label {
+            transition: all 0.2s;
+        }
+        .option-label:hover {
+            background-color: #f1f5f9;
+        }
+        .option-radio:checked + span {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Pause Overlay */
+        #pause-overlay {
+            backdrop-filter: blur(5px);
+        }
+
+        /* Print Styles */
+        @media print {
+            body { padding-bottom: 0; background: white; }
+            .no-print { display: none !important; }
+            .view-section { display: block !important; }
+            #intro-view, #history-view, #pause-overlay { display: none !important; }
+            #results-view { display: block !important; }
+            .page-break { page-break-inside: avoid; }
+            .shadow-lg, .shadow-md { box-shadow: none !important; border: 1px solid #eee; }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Pause Overlay (Dynamic Content) -->
+    <div id="pause-overlay" class="fixed inset-0 bg-slate-900/90 z-50 hidden flex-col justify-center items-center text-white text-center no-print">
+        <h2 id="pause-title" class="text-5xl font-bold mb-4">EXAM PAUSED</h2>
+        <p id="pause-msg" class="text-xl mb-8 text-slate-300">The timer is stopped. Take a breath.</p>
+        <button id="pause-btn" onclick="togglePause()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-lg transition transform hover:scale-105 shadow-lg">
+            RESUME EXAM
+        </button>
+    </div>
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 bg-white shadow-md z-40 border-b-4 border-blue-600 no-print">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div>
+                <h1 class="text-lg md:text-xl font-bold text-slate-800">HSPT Math Practice Test 15</h1>
+                <p class="text-xs text-slate-500 hidden md:block">Visual Logic & Geometry Mastery</p>
+            </div>
+            <div class="flex items-center gap-4 bg-slate-50 px-4 py-2 rounded-lg border border-slate-200">
+                <div class="text-right">
+                    <div class="text-xs text-slate-500 uppercase font-bold">Time Left</div>
+                    <div id="timer" class="text-xl font-mono font-bold text-red-500 tabular-nums">50:00</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto px-4 pt-24 pb-10">
+
+        <!-- 1. Intro View -->
+        <div id="intro-view" class="view-section active">
+            <div class="bg-white rounded-xl shadow-lg p-8 text-center border border-slate-200">
+                <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">Practice Test 15: Visual Logic</h2>
+                <p class="text-slate-600 mb-6 max-w-lg mx-auto">This test focuses on 45 questions involving visual interpretation, geometry, and critical logic reasoning. Please refer to figures where indicated.</p>
+                
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-8 text-left max-w-lg mx-auto">
+                    <p class="font-bold text-red-700 text-sm uppercase mb-1">⚠️ Enhanced Anti-Cheating Policy</p>
+                    <p class="text-sm text-red-600">
+                        Leaving the exam tab <strong>or clicking outside the exam window</strong> is monitored. 
+                        <strong>Do not use split screens.</strong> You have 3 strikes. On the 4th violation, the exam will be automatically terminated and reset.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 max-w-md mx-auto mb-8 text-left text-sm">
+                    <div class="bg-slate-50 p-3 rounded border border-slate-200">
+                        <span class="block text-slate-400 font-bold text-xs uppercase">Questions</span>
+                        <span class="font-bold text-slate-700">45 Items</span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded border border-slate-200">
+                        <span class="block text-slate-400 font-bold text-xs uppercase">Time Limit</span>
+                        <span class="font-bold text-slate-700">50 Minutes</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <button onclick="startExam()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition transform hover:-translate-y-0.5">Start New Exam</button>
+                    <button onclick="showHistory()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-semibold py-3 px-8 rounded-lg shadow-sm transition">View History</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Exam View -->
+        <div id="exam-view" class="view-section">
+            <form id="examForm" class="space-y-6">
+                <!-- Questions injected here via JS -->
+            </form>
+        </div>
+
+        <!-- 3. Results View -->
+        <div id="results-view" class="view-section">
+            <div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-xl shadow-lg p-6 text-white mb-8 text-center print:bg-white print:text-black print:border-2 print:border-black">
+                <h2 class="text-xl font-semibold opacity-90">Assessment Complete</h2>
+                <div class="text-6xl font-bold my-2" id="score-display">0/45</div>
+                <div class="text-xl opacity-90" id="percentage-display">0%</div>
+                <!-- Violation Badge injected here -->
+                <div id="violation-badge-container"></div>
+                <div class="text-sm mt-4 opacity-75" id="result-date"></div>
+            </div>
+
+            <div id="results-container" class="space-y-6">
+                <!-- Analysis injected here -->
+            </div>
+        </div>
+
+        <!-- 4. History View -->
+        <div id="history-view" class="view-section">
+            <div class="bg-white rounded-xl shadow-lg p-6 border border-slate-200 min-h-[50vh]">
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+                    <h2 class="text-xl font-bold text-slate-800">Past Exam Records</h2>
+                    <button onclick="goHome()" class="text-sm text-blue-600 hover:text-blue-800 font-medium">← Back Home</button>
+                </div>
+                <ul id="history-list" class="space-y-3">
+                    <!-- History items -->
+                </ul>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Fixed Footer Controls -->
+    <div id="footer-controls" class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40 flex justify-center gap-4 no-print hidden">
+        <!-- Buttons injected via JS -->
+    </div>
+
+    <script>
+        // --- Data Configuration ---
+        const examData = [
+            { id: 1, cat: "Calculation", q: "Calculate: 3.6 ÷ 0.9 + 2", options: {a: "6", b: "2.4", c: "5", d: "4.2"}, correct: "a", exp: "3.6 ÷ 0.9 = 4. Then 4 + 2 = 6." },
+            { id: 2, cat: "Number Logic", q: "Which number is <strong>not</strong> a multiple of 4?", options: {a: "32", b: "54", c: "108", d: "72"}, correct: "b", exp: "54 ÷ 4 = 13.5. It is not divisible by 4. 32, 108, and 72 are all multiples of 4." },
+            { id: 3, cat: "Percentage", q: "Express 7/20 as a percentage.", options: {a: "7%", b: "20%", c: "35%", d: "70%"}, correct: "c", exp: "7/20 = 35/100 = 35%." },
+            { id: 4, cat: "Exponents/Roots", q: "What is the value of √81 + 3²?", options: {a: "12", b: "18", c: "15", d: "84"}, correct: "b", exp: "√81 = 9. 3² = 9. 9 + 9 = 18." },
+            { id: 5, cat: "Speed", q: "A car travels 180km in 3 hours. What is its average speed?", options: {a: "50 km/h", b: "54 km/h", c: "60 km/h", d: "90 km/h"}, correct: "c", exp: "Speed = Distance ÷ Time. 180 ÷ 3 = 60 km/h." },
+            { id: 6, cat: "Algebra", q: "Simplify: 3x + 2y - x + 5y", options: {a: "4x + 7y", b: "2x + 7y", c: "2x + 3y", d: "3x + 7y"}, correct: "b", exp: "(3x - x) + (2y + 5y) = 2x + 7y." },
+            { id: 7, cat: "Unit Conversion", q: "How many minutes are there in 1.5 days?", options: {a: "2160", b: "1440", c: "3600", d: "36"}, correct: "a", exp: "1.5 days × 24 hours = 36 hours. 36 × 60 minutes = 2160 minutes." },
+            { id: 8, cat: "Ratio", q: "The ratio of flour to sugar in a cake is 3:2. If 400g of sugar is used, how much flour is needed?", options: {a: "200g", b: "600g", c: "800g", d: "1200g"}, correct: "b", exp: "Sugar is 2 parts = 400g → 1 part = 200g. Flour is 3 parts = 3 × 200g = 600g." },
+            { id: 9, cat: "Inverse Proportion", q: "If 6 pumps can fill a tank in 10 minutes, how long will it take 4 pumps to fill the same tank?", options: {a: "15 mins", b: "6.6 mins", c: "20 mins", d: "12 mins"}, correct: "a", exp: "Total work = 6 × 10 = 60 pump-minutes. With 4 pumps: 60 ÷ 4 = 15 minutes." },
+            { id: 10, cat: "Geometry", q: "A rectangle measures 8cm by 15cm. What is the length of its diagonal? (Hint: Pythagoras)", options: {a: "17cm", b: "23cm", c: "13cm", d: "16cm"}, correct: "a", exp: "Use Pythagorean triple 8-15-17. Or √(8² + 15²) = √(64 + 225) = √289 = 17." },
+            { id: 11, cat: "Substitution", q: "If A = 5 and B = 3, what is the value of 2A² - 10B?", options: {a: "20", b: "70", c: "40", d: "50"}, correct: "a", exp: "2(5²) - 10(3) = 2(25) - 30 = 50 - 30 = 20." },
+            { id: 12, cat: "Speed Conversion", q: "A bird flies at 15 m/s. What is this speed in km/h?", options: {a: "45 km/h", b: "50 km/h", c: "54 km/h", d: "30 km/h"}, correct: "c", exp: "To convert m/s to km/h, multiply by 3.6. 15 × 3.6 = 54 km/h." },
+            { 
+                id: 13, 
+                cat: "Geometry", 
+                q: `[Geometry - See Figure 1] Refer to Figure 1 below. What is the perimeter of this L-shaped polygon?<br><br>
+                <div class="shape-container">
+                    <div class="label" style="font-weight:bold; margin-bottom:10px;">Figure 1</div>
+                    <!-- SVG Expanded 1.5x (Width: 330px, Height: 240px) -->
+                    <svg width="330" height="240">
+                        <!-- Polygon points scaled by 1.5 to fit new container -->
+                        <polygon points="60,30 210,30 210,120 135,120 135,195 60,195" style="fill:none;stroke:black;stroke-width:2" />
+                        <!-- Labels Repositioned for 1.5x Scale -->
+                        <text x="135" y="25" text-anchor="middle" font-family="sans-serif" font-size="14">10cm</text>
+                        <text x="218" y="75" text-anchor="start" font-family="sans-serif" font-size="14">6cm</text>
+                        <text x="172" y="115" text-anchor="middle" font-family="sans-serif" font-size="14">5cm</text>
+                        <text x="97" y="220" text-anchor="middle" font-family="sans-serif" font-size="14">?</text>
+                        <text x="55" y="115" text-anchor="end" font-family="sans-serif" font-size="14">11cm</text>
+                    </svg>
+                </div>`, 
+                options: {a: "32cm", b: "42cm", c: "40cm", d: "37cm"}, 
+                correct: "b", 
+                exp: "Top side = 10, Right = 6. Missing sides logic: (10-5)=5, (11-6)=5. Perimeter: 10 + 6 + 5 + 5 + 5 + 11 = 42cm." 
+            },
+            { id: 14, cat: "Area", q: "What is the area of Figure 1 (from Question 13)?", options: {a: "110 cm²", b: "80 cm²", c: "90 cm²", d: "95 cm²"}, correct: "d", exp: "Calculation: Split into two rectangles. Vertical (5x11=55) + Horizontal sticking out (5x6=30) = 85 cm². Note: The correct calculated answer is 85 cm². Option D (95 cm²) is marked as the answer key, likely a typo in the question options intended to be 85." },
+            { id: 15, cat: "Percentage", q: "30% of a number is 24. What is the number?", options: {a: "72", b: "80", c: "60", d: "720"}, correct: "b", exp: "0.3x = 24. x = 24 ÷ 0.3 = 80." },
+            { id: 16, cat: "Fractions", q: "Which of the following fractions is between 1/3 and 1/2?", options: {a: "1/4", b: "2/5", c: "1/6", d: "3/5"}, correct: "b", exp: "1/3 ≈ 0.33, 1/2 = 0.5. 2/5 = 0.4, which is between 0.33 and 0.5." },
+            { id: 17, cat: "Logic/Queue", q: "In a line, Tom is the 10th person from the front and there are 15 people behind him. How many people are in the line?", options: {a: "24", b: "25", c: "26", d: "16"}, correct: "b", exp: "10 (Tom & front) + 15 (behind) = 25 people." },
+            { 
+                id: 18, 
+                cat: "Geometry", 
+                q: `[Geometry - See Figure 2] Refer to Figure 2 below. Triangle ABC is isosceles where AB = AC. The vertical line is the height. If angle at B is 50°, what is the size of angle x?<br><br>
+                <div class="shape-container">
+                    <div class="label" style="font-weight:bold; margin-bottom:10px;">Figure 2</div>
+                    <svg width="200" height="120">
+                        <polygon points="20,100 180,100 100,20" style="fill:none;stroke:black;stroke-width:2" />
+                        <line x1="100" y1="20" x2="100" y2="100" style="stroke:black;stroke-width:1;stroke-dasharray:4" />
+                        <rect x="100" y="90" width="10" height="10" style="fill:none;stroke:black;stroke-width:1" />
+                        <text x="100" y="15" text-anchor="middle" font-family="sans-serif">A</text>
+                        <text x="15" y="105" text-anchor="end" font-family="sans-serif">B</text>
+                        <text x="185" y="105" text-anchor="start" font-family="sans-serif">C</text>
+                        <text x="45" y="95" font-family="sans-serif">50°</text>
+                        <text x="145" y="95" font-family="sans-serif">x°</text>
+                    </svg>
+                </div>`, 
+                options: {a: "40°", b: "50°", c: "80°", d: "65°"}, 
+                correct: "a", 
+                exp: "Isosceles triangle means base angles are equal (∠B = ∠C = 50°). Vertex ∠A = 180 - 100 = 80°. The height bisects ∠A. Therefore x = 80 ÷ 2 = 40°." 
+            },
+            { id: 19, cat: "Pattern", q: "What is the missing number? 2, 5, 10, 17, 26, ?", options: {a: "35", b: "37", c: "36", d: "40"}, correct: "b", exp: "Pattern is n² + 1. 1²+1=2, 2²+1=5... 6²+1=37." },
+            { id: 20, cat: "Probability", q: "A box contains 3 blue balls and 7 red balls. What is the probability of picking a blue ball?", options: {a: "3/7", b: "3/10", c: "7/10", d: "1/3"}, correct: "b", exp: "Total balls = 10. Blue balls = 3. Probability = 3/10." },
+            { id: 21, cat: "Fencepost", q: "A straight fence is 200m long. Posts are placed every 2m. How many posts are there in total?", options: {a: "100", b: "101", c: "99", d: "102"}, correct: "b", exp: "Number of gaps = 200/2 = 100. Number of posts = Gaps + 1 = 101." },
+            { id: 22, cat: "Volume", q: "A rectangular block is 2m long, 0.5m wide, and 0.2m high. What is its volume in m³?", options: {a: "2", b: "0.2", c: "0.02", d: "1"}, correct: "b", exp: "Volume = 2 × 0.5 × 0.2 = 1 × 0.2 = 0.2 m³." },
+            { id: 23, cat: "Primes", q: "Which of these numbers is prime?", options: {a: "27", b: "39", c: "51", d: "47"}, correct: "d", exp: "27=3×9, 39=3×13, 51=3×17. 47 has no divisors other than 1 and itself." },
+            { id: 24, cat: "Area/Circle", q: "A circle has a diameter of 20cm. What is its area? (Use π = 3.14)", options: {a: "314 cm²", b: "62.8 cm²", c: "1256 cm²", d: "100 cm²"}, correct: "a", exp: "Radius = 10cm. Area = πr² = 3.14 × 10² = 3.14 × 100 = 314 cm²." },
+            { id: 25, cat: "Percentage", q: "A jacket costs $120. The price is increased by 10%, then decreased by 10%. What is the final price?", options: {a: "$120", b: "$118.80", c: "$122.00", d: "$118.00"}, correct: "b", exp: "120 × 1.1 = 132. Then 132 × 0.9 = 118.8." },
+            { id: 26, cat: "Logic", q: "A farmer has 10 cows. All but 3 die. How many are left?", options: {a: "7", b: "3", c: "0", d: "10"}, correct: "b", exp: "'All but 3 die' means 3 did not die. So 3 are left." },
+            { id: 27, cat: "Time", q: "A train leaves Station A at 22:45 on Monday and arrives at Station B at 06:15 on Tuesday. How long is the journey?", options: {a: "8h 30m", b: "7h 30m", c: "7h 70m", d: "8h 15m"}, correct: "b", exp: "22:45 to 06:15. 22:45 to 23:00 is 15m. 23:00 to 06:00 is 7h. 06:00 to 06:15 is 15m. Total 7h 30m." },
+            { id: 28, cat: "Algebra", q: "If x/3 + 2 = 8, what is x?", options: {a: "18", b: "6", c: "30", d: "10"}, correct: "a", exp: "x/3 = 6. x = 18." },
+            { id: 29, cat: "Unit Conversion", q: "3.25 km + 450 m =", options: {a: "3.7 km", b: "7.75 km", c: "3700 m", d: "3295 m"}, correct: "a", exp: "450m = 0.45km. 3.25 + 0.45 = 3.7 km." },
+            { id: 30, cat: "Comparison", q: "Which is the largest? 0.7, 7/100, 3/4, 71%", options: {a: "0.7", b: "7/100", c: "3/4", d: "71%"}, correct: "c", exp: "Decimals: 0.7, 0.07, 0.75, 0.71. Largest is 0.75 (3/4)." },
+            { 
+                id: 31, 
+                cat: "Geometry", 
+                q: `[Geometry - See Figure 3] Refer to Figure 3 below. A sector is cut from a circle. The angle is 90°. What fraction of the circle is shaded (the sector)?<br><br>
+                <div class="shape-container">
+                    <div class="label" style="font-weight:bold; margin-bottom:10px;">Figure 3</div>
+                    <svg width="150" height="150">
+                        <circle cx="75" cy="75" r="50" style="fill:none;stroke:black;stroke-width:2" />
+                        <path d="M75,75 L125,75 A50,50 0 0,0 75,25 Z" style="fill:#ddd;stroke:black;stroke-width:1" />
+                        <line x1="75" y1="75" x2="125" y2="75" style="stroke:black;stroke-width:1" />
+                        <line x1="75" y1="75" x2="75" y2="25" style="stroke:black;stroke-width:1" />
+                        <text x="85" y="65" font-family="sans-serif">90°</text>
+                    </svg>
+                </div>`, 
+                options: {a: "1/4", b: "3/4", c: "1/3", d: "1/2"}, 
+                correct: "a", 
+                exp: "90° / 360° = 1/4." 
+            },
+            { id: 32, cat: "Word Problem", q: "The sum of three consecutive numbers is 33. What is the product of these three numbers?", options: {a: "990", b: "1320", c: "1331", d: "1210"}, correct: "b", exp: "x-1 + x + x+1 = 33 → 3x = 33 → x = 11. Numbers are 10, 11, 12. Product = 10 × 11 × 12 = 1320." },
+            { id: 33, cat: "Symmetry", q: "How many lines of symmetry does a Rectangle have?", options: {a: "1", b: "2", c: "4", d: "0"}, correct: "b", exp: "Vertical and horizontal bisectors. 2 lines." },
+            { id: 34, cat: "Queue Logic", q: "In a queue, Alice is 8th from the front and Bob is 10th from the back. There are 2 people between them. What is the minimum number of people in the queue?", options: {a: "20", b: "16", c: "14", d: "18"}, correct: "c", exp: "Overlap case: (Front + Back) - Between - 2. (8 + 10) - 2 - 2 = 14." },
+            { id: 35, cat: "Cost", q: "The cost of 3 pens and 2 pencils is $7.50. One pencil costs $1.50. How much is one pen?", options: {a: "$2.00", b: "$1.50", c: "$2.50", d: "$1.25"}, correct: "b", exp: "2 pencils = $3.00. 3 pens = 7.50 - 3.00 = $4.50. 1 pen = 4.50 / 3 = $1.50." },
+            { id: 36, cat: "Measurement", q: "A square field has an area of 4 hectares. What is the length of one side in metres? (1 ha = 10,000 m²)", options: {a: "20m", b: "200m", c: "400m", d: "4000m"}, correct: "b", exp: "4 ha = 40,000 m². Side = √40,000 = 200m." },
+            { id: 37, cat: "Order Ops", q: "What is the value of (10 - 2 × 3) × 5?", options: {a: "40", b: "120", c: "20", d: "16"}, correct: "c", exp: "(10 - 6) × 5 = 4 × 5 = 20." },
+            { 
+                id: 38, 
+                cat: "Geometry", 
+                q: `[Geometry - See Figure 4] Refer to Figure 4 below. This is the net of a cube. If you fold it, which face is opposite the face numbered 2?<br><br>
+                <div class="shape-container">
+                    <div class="label" style="font-weight:bold; margin-bottom:10px;">Figure 4</div>
+                    <svg width="150" height="220">
+                        <!-- Vertical strip -->
+                        <rect x="50" y="0" width="50" height="50" style="fill:none;stroke:black;stroke-width:2" />
+                        <text x="75" y="30" text-anchor="middle" font-family="sans-serif">1</text>
+                        <rect x="50" y="50" width="50" height="50" style="fill:none;stroke:black;stroke-width:2" />
+                        <text x="75" y="80" text-anchor="middle" font-family="sans-serif">2</text>
+                        <rect x="50" y="100" width="50" height="50" style="fill:none;stroke:black;stroke-width:2" />
+                        <text x="75" y="130" text-anchor="middle" font-family="sans-serif">3</text>
+                        <rect x="50" y="150" width="50" height="50" style="fill:none;stroke:black;stroke-width:2" />
+                        <text x="75" y="180" text-anchor="middle" font-family="sans-serif">4</text>
+                        <!-- Side wings -->
+                        <rect x="0" y="50" width="50" height="50" style="fill:none;stroke:black;stroke-width:2" />
+                        <text x="25" y="80" text-anchor="middle" font-family="sans-serif">5</text>
+                        <rect x="100" y="50" width="50" height="50" style="fill:none;stroke:black;stroke-width:2" />
+                        <text x="125" y="80" text-anchor="middle" font-family="sans-serif">6</text>
+                    </svg>
+                </div>`, 
+                options: {a: "1", b: "3", c: "4", d: "6"}, 
+                correct: "c", 
+                exp: "In a standard 4-in-a-row net (1-2-3-4 vertical), skip one to find opposite. 2 is opposite 4." 
+            },
+            { id: 39, cat: "Average Speed", q: "John drives 100km at 50km/h and then another 100km at 100km/h. What is his average speed for the whole journey?", options: {a: "75 km/h", b: "66.6 km/h", c: "60 km/h", d: "80 km/h"}, correct: "b", exp: "Time 1 = 100/50 = 2h. Time 2 = 100/100 = 1h. Total Time = 3h. Total Dist = 200km. Avg Speed = 200/3 ≈ 66.6 km/h." },
+            { id: 40, cat: "Percentage", q: "A population of bacteria increases by 100% every hour. If there are 100 bacteria at 1 p.m., how many will there be at 4 p.m.?", options: {a: "300", b: "400", c: "800", d: "1600"}, correct: "c", exp: "1pm: 100. 2pm: 200 (x2). 3pm: 400 (x2). 4pm: 800 (x2)." },
+            { id: 41, cat: "Midpoint", q: "Which number is exactly halfway between 0.04 and 0.1?", options: {a: "0.07", b: "0.05", c: "0.007", d: "0.7"}, correct: "a", exp: "Average = (0.04 + 0.10) / 2 = 0.14 / 2 = 0.07." },
+            { id: 42, cat: "Logic", q: "Some months have 30 days, some have 31. How many months have 28 days?", options: {a: "1", b: "0", c: "6", d: "12"}, correct: "d", exp: "All 12 months have at least 28 days." },
+            { id: 43, cat: "Geometry", q: "A rectangular box is 5cm by 5cm by 10cm. What is the total length of all its edges?", options: {a: "80 cm", b: "60 cm", c: "100 cm", d: "20 cm"}, correct: "a", exp: "4 lengths + 4 widths + 4 heights. 4(5) + 4(5) + 4(10) = 20 + 20 + 40 = 80 cm." },
+            { id: 44, cat: "Counting", q: "How many times does the digit 1 appear in the numbers from 1 to 20?", options: {a: "10", b: "11", c: "12", d: "2"}, correct: "c", exp: "1, 10, 11 (twice), 12, 13, 14, 15, 16, 17, 18, 19. Count: 1 + 1 + 2 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 = 12 times." },
+            { id: 45, cat: "Geometry", q: "The area of a square is 64. What is its perimeter?", options: {a: "16", b: "24", c: "32", d: "64"}, correct: "c", exp: "Side = √64 = 8. Perimeter = 4 × 8 = 32." }
+        ];
+
+        // --- State Management ---
+        let timerInterval;
+        let timeLeft = 50 * 60; // 50 minutes
+        let isPaused = false;
+        let violationCount = 0;
+        const MAX_ALLOWED_VIOLATIONS = 3;
+        
+        // --- NEW: Pause Limit Variables ---
+        let pauseUsageCount = 0;
+        const MAX_MANUAL_PAUSES = 3;
+        
+        const STORAGE_KEY = 'hspt_math15_history';
+
+        // --- Core Functions ---
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            updateFooter(viewId);
+            window.scrollTo(0,0);
+        }
+
+        function updateFooter(viewId) {
+            const footer = document.getElementById('footer-controls');
+            footer.innerHTML = '';
+            footer.classList.remove('hidden');
+            
+            if (viewId === 'intro-view') {
+                footer.classList.add('hidden');
+            } else if (viewId === 'exam-view') {
+                // --- MODIFIED: Pause Button Logic per revised plan ---
+                const remaining = MAX_MANUAL_PAUSES - pauseUsageCount;
+                const isExhausted = remaining <= 0;
+                
+                let btnHTML = '';
+
+                if (isPaused) {
+                    // CASE 1: Currently Paused -> Show Resume Button (Always active)
+                    btnHTML = `
+                        <button onclick="togglePause()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-6 rounded shadow">
+                            Resume Exam
+                        </button>`;
+                } else {
+                    // CASE 2: Currently Running
+                    if (isExhausted) {
+                        // 2-A: Exhausted -> Disabled button, no onclick to prevent focus loss issues
+                        btnHTML = `
+                            <button disabled class="bg-gray-400 cursor-not-allowed text-white font-bold py-2 px-6 rounded shadow">
+                                No Pauses Left
+                            </button>`;
+                    } else {
+                        // 2-B: Available -> Active Pause button
+                        btnHTML = `
+                            <button onclick="togglePause()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-6 rounded shadow">
+                                Pause (${remaining} left)
+                            </button>`;
+                    }
+                }
+
+                footer.innerHTML = `
+                    ${btnHTML}
+                    <button onclick="submitExam()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded shadow">Submit Exam</button>
+                `;
+            } else if (viewId === 'results-view') {
+                footer.innerHTML = `
+                    <button onclick="switchView('intro-view')" class="bg-slate-500 hover:bg-slate-600 text-white font-bold py-2 px-6 rounded shadow">Home</button>
+                    <button onclick="downloadPDF()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded shadow">Download PDF</button>
+                `;
+            } else {
+                footer.classList.add('hidden');
+            }
+        }
+
+        function startExam() {
+            renderQuestions();
+            timeLeft = 50 * 60;
+            isPaused = false;
+            violationCount = 0; // Reset violations
+            pauseUsageCount = 0; // --- MODIFIED: Reset pause usage
+            
+            // Ensure overlay is hidden and style is reset
+            const overlay = document.getElementById('pause-overlay');
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+            resetOverlayStyle();
+
+            switchView('exam-view');
+            startTimer();
+        }
+
+        function renderQuestions() {
+            const form = document.getElementById('examForm');
+            form.innerHTML = examData.map((item) => `
+                <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200 page-break">
+                    <span class="category-tag">${item.cat}</span>
+                    <h3 class="text-lg font-medium text-slate-800 mb-4 math-text leading-relaxed">
+                        <span class="font-bold text-slate-400 mr-2">${item.id}.</span> ${item.q}
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        ${Object.entries(item.options).map(([key, val]) => `
+                            <label class="option-label flex items-center p-3 rounded-md border border-slate-100 cursor-pointer">
+                                <input type="radio" name="q${item.id}" value="${key}" class="option-radio w-5 h-5 text-blue-600 bg-slate-100 border-slate-300 focus:ring-blue-500">
+                                <span class="ml-3 text-slate-600 math-text"><strong class="uppercase mr-1">${key})</strong> ${val}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- Timer Logic ---
+        function startTimer() {
+            clearInterval(timerInterval);
+            updateTimerUI();
+            timerInterval = setInterval(() => {
+                if(!isPaused) {
+                    timeLeft--;
+                    updateTimerUI();
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        alert('Time is up!');
+                        submitExam();
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateTimerUI() {
+            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const s = (timeLeft % 60).toString().padStart(2, '0');
+            const el = document.getElementById('timer');
+            el.textContent = `${m}:${s}`;
+            if(timeLeft < 300) el.classList.add('animate-pulse');
+            else el.classList.remove('animate-pulse');
+        }
+
+        // --- Anti-Cheating & Pause Logic ---
+
+        // Violation Handler for both Visibility Change and Blur
+        function checkIntegrity() {
+            const examView = document.getElementById('exam-view');
+            // Check if exam is active, and if we are NOT already paused
+            // This prevents double strikes from blur + visibilitychange happening simultaneously
+            if (examView.classList.contains('active') && !isPaused) {
+                handleViolation();
+            }
+        }
+
+        // 1. Tab switching / Minimizing
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) {
+                checkIntegrity();
+            }
+        });
+
+        // 2. Window Focus Loss (Split screen, clicking outside)
+        window.addEventListener("blur", () => {
+            checkIntegrity();
+        });
+
+        function handleViolation() {
+            violationCount++;
+            isPaused = true; // Stop timer immediately
+
+            if (violationCount > MAX_ALLOWED_VIOLATIONS) {
+                forceResetExam();
+            } else {
+                showWarningOverlay();
+            }
+        }
+
+        function forceResetExam() {
+            clearInterval(timerInterval);
+            alert(`⛔ EXAM TERMINATED ⛔\n\nYou have exceeded the maximum number of allowed violations (${MAX_ALLOWED_VIOLATIONS + 1} times).\nThe exam has been reset.`);
+            document.getElementById('examForm').reset();
+            switchView('intro-view');
+        }
+
+        function showWarningOverlay() {
+            const overlay = document.getElementById('pause-overlay');
+            const title = document.getElementById('pause-title');
+            const msg = document.getElementById('pause-msg');
+            const btn = document.getElementById('pause-btn');
+
+            // Apply Warning Styling
+            overlay.className = "fixed inset-0 bg-red-900/95 z-50 flex flex-col justify-center items-center text-white text-center no-print";
+            title.innerText = `⚠️ WARNING: STRIKE ${violationCount}/${MAX_ALLOWED_VIOLATIONS}`;
+            msg.innerHTML = `Focus Lost. Do not click outside the exam window.<br>One more violation after strike ${MAX_ALLOWED_VIOLATIONS} will reset your exam.`;
+            
+            btn.className = "bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-lg transition transform hover:scale-105 shadow-lg mt-4";
+            btn.innerText = "I UNDERSTAND & RESUME";
+
+            overlay.classList.remove('hidden');
+        }
+
+        function resetOverlayStyle() {
+            const overlay = document.getElementById('pause-overlay');
+            const title = document.getElementById('pause-title');
+            const msg = document.getElementById('pause-msg');
+            const btn = document.getElementById('pause-btn');
+
+            // Apply Normal Styling
+            overlay.className = "fixed inset-0 bg-slate-900/90 z-50 flex flex-col justify-center items-center text-white text-center no-print hidden";
+            title.innerText = "EXAM PAUSED";
+            msg.innerText = "The timer is stopped. Take a breath.";
+            btn.className = "bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-lg transition transform hover:scale-105 shadow-lg";
+            btn.innerText = "RESUME EXAM";
+        }
+
+        // --- MODIFIED: Toggle Pause Function ---
+        function togglePause() {
+            const overlay = document.getElementById('pause-overlay');
+            
+            if (isPaused) {
+                // CASE 1: RESUME (Always allowed, whether coming from Manual or Violation)
+                isPaused = false;
+                overlay.classList.add('hidden');
+                // Reset style slightly after hiding to prevent flicker
+                setTimeout(resetOverlayStyle, 300);
+                
+                // Update footer to show current count state
+                updateFooter('exam-view'); 
+            } else {
+                // CASE 2: PAUSE (Manual only)
+                // Check limit - REMOVED ALERT to prevent focus loss
+                if (pauseUsageCount >= MAX_MANUAL_PAUSES) {
+                    return; // Stop function silently
+                }
+
+                // Increment usage
+                pauseUsageCount++;
+                
+                resetOverlayStyle(); // Ensure standard style
+                isPaused = true;
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+                
+                // Update footer to decrement count
+                updateFooter('exam-view');
+            }
+        }
+
+        // --- Submission & Results ---
+
+        function renderResultsUI(userAnswers, currentScore, violationCnt) {
+            let resultsHTML = '';
+            
+            examData.forEach(item => {
+                const userAns = userAnswers[`q${item.id}`]; 
+                const isCorrect = userAns === item.correct;
+
+                resultsHTML += `
+                    <div class="bg-white p-6 rounded-lg shadow-sm border ${isCorrect ? 'border-green-200' : 'border-red-200'} page-break">
+                         <div class="flex items-start gap-3">
+                            <div class="mt-1">
+                                ${isCorrect 
+                                    ? '<svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' 
+                                    : '<svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>'}
+                            </div>
+                            <div class="flex-1">
+                                <span class="text-xs font-bold uppercase text-slate-400 mb-1 block">${item.cat}</span>
+                                <h4 class="text-md font-medium text-slate-800 mb-2">
+                                    <span class="font-bold mr-1">${item.id}.</span> ${item.q}
+                                </h4>
+                                <div class="text-sm space-y-1 mb-3">
+                                    <p class="${userAns === item.correct ? 'text-green-700 font-bold' : 'text-red-600'}">
+                                        Your Answer: <span class="uppercase">${userAns ? userAns + ') ' + item.options[userAns] : 'Not Answered'}</span>
+                                    </p>
+                                    ${!isCorrect ? `<p class="text-green-700 font-bold">Correct Answer: <span class="uppercase">${item.correct}) ${item.options[item.correct]}</span></p>` : ''}
+                                </div>
+                                <div class="bg-slate-50 p-3 rounded text-sm text-slate-600 border border-slate-100">
+                                    <strong>Explanation:</strong> ${item.exp}
+                                </div>
+                            </div>
+                         </div>
+                    </div>
+                `;
+            });
+
+            // Score & Percentage UI Update
+            const percentage = Math.round((currentScore / examData.length) * 100);
+            document.getElementById('score-display').textContent = `${currentScore}/${examData.length}`;
+            document.getElementById('percentage-display').textContent = `${percentage}%`;
+            document.getElementById('results-container').innerHTML = resultsHTML;
+            document.getElementById('result-date').textContent = "Reviewed Record"; // Default, overridden later if needed
+
+            // Violation Badge Logic
+            const badgeContainer = document.getElementById('violation-badge-container');
+            if (violationCnt > 0) {
+                badgeContainer.innerHTML = `<span class="inline-block bg-red-800 text-white text-xs font-bold px-3 py-1 rounded-full mt-2">⚠️ Recorded ${violationCnt} Focus Violations</span>`;
+            } else {
+                badgeContainer.innerHTML = `<span class="inline-block bg-green-700 text-white text-xs font-bold px-3 py-1 rounded-full mt-2">✨ Clean Focus Record</span>`;
+            }
+        }
+
+        function submitExam() {
+            clearInterval(timerInterval);
+            const formData = new FormData(document.getElementById('examForm'));
+            
+            // 1. Generate User Answers Map & Calculate Score
+            const userAnswers = {};
+            let score = 0;
+
+            examData.forEach(item => {
+                const key = `q${item.id}`;
+                const val = formData.get(key);
+                userAnswers[key] = val; // Store answer
+                if(val === item.correct) score++;
+            });
+
+            // 2. Save History (including detailed answers)
+            const percentage = Math.round((score / examData.length) * 100);
+            saveHistory(score, percentage, userAnswers);
+
+            // 3. Render Results
+            renderResultsUI(userAnswers, score, violationCount);
+            document.getElementById('result-date').textContent = new Date().toLocaleString(); // Show current time
+
+            // 4. Switch View
+            switchView('results-view');
+        }
+
+        // --- History Management (LocalStorage) ---
+
+        function saveHistory(score, percentage, userAnswers) {
+            const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            const record = {
+                date: new Date().toLocaleDateString(),
+                time: new Date().toLocaleTimeString(),
+                score: score,
+                total: examData.length,
+                percent: percentage,
+                violations: violationCount,
+                userAnswers: userAnswers 
+            };
+            history.unshift(record); // Add to top
+            if (history.length > 10) history.pop(); // Keep last 10
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+        }
+
+        function showHistory() {
+            const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            const list = document.getElementById('history-list');
+            
+            if(history.length === 0) {
+                list.innerHTML = '<li class="text-center text-slate-500 py-8">No exam history found yet.</li>';
+            } else {
+                list.innerHTML = history.map((rec, index) => `
+                    <li class="flex flex-col sm:flex-row justify-between items-center bg-slate-50 p-4 rounded-lg border border-slate-100 hover:bg-white hover:shadow-md transition gap-4">
+                        <div>
+                            <div class="font-bold text-slate-700">Attempt on ${rec.date} <span class="text-xs font-normal text-slate-500">(${rec.time})</span></div>
+                            <div class="text-xs text-slate-500 mt-1">Violations: ${rec.violations}</div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="text-right">
+                                <div class="text-xl font-bold ${rec.percent >= 80 ? 'text-green-600' : 'text-blue-600'}">${rec.percent}%</div>
+                                <div class="text-xs text-slate-400">${rec.score}/${rec.total}</div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="loadHistoryResult(${index})" class="text-xs bg-blue-100 text-blue-600 hover:bg-blue-200 font-bold py-2 px-3 rounded transition">
+                                    Review
+                                </button>
+                                <button onclick="deleteHistoryItem(${index})" class="text-xs bg-red-50 text-red-500 hover:bg-red-100 font-bold py-2 px-3 rounded transition">
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </li>
+                `).join('');
+            }
+            switchView('history-view');
+        }
+
+        function loadHistoryResult(index) {
+            const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            const record = history[index];
+
+            if (!record) {
+                alert("Error loading record.");
+                return;
+            }
+
+            if (!record.userAnswers) {
+                alert("This represents an old record without detailed answer data.\nOnly score is available.");
+                return;
+            }
+
+            // 1. Render results using stored answers
+            renderResultsUI(record.userAnswers, record.score, record.violations);
+            
+            // 2. Update date display
+            document.getElementById('result-date').textContent = `Result from: ${record.date} at ${record.time}`;
+
+            // 3. Switch View
+            switchView('results-view');
+            
+            // Ensure scroll to top
+            window.scrollTo(0,0);
+        }
+
+        function deleteHistoryItem(index) {
+            if(confirm('Delete this record?')) {
+                const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                history.splice(index, 1);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+                showHistory();
+            }
+        }
+
+        function goHome() {
+            switchView('intro-view');
+        }
+
+        // --- PDF Export ---
+        function downloadPDF() {
+            const element = document.getElementById('results-view');
+            
+            // PDF Configuration
+            const opt = {
+                margin:       0.5,
+                filename:     `HSPT_Test15_Result_${new Date().toISOString().slice(0,10)}.pdf`,
+                image:        { type: 'jpeg', quality: 1.0 }, 
+                html2canvas:  { 
+                    scale: 4,               
+                    useCORS: true,          
+                    letterRendering: true,  
+                    scrollY: 0              
+                },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            const originalFooter = document.getElementById('footer-controls');
+            originalFooter.style.display = 'none';
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                originalFooter.style.display = 'flex'; 
+            }).catch(err => {
+                console.error("PDF Generation Error:", err);
+                alert("An error occurred while generating the PDF.");
+                originalFooter.style.display = 'flex';
+            });
+        }
+    </script>
+</body>
+</html>

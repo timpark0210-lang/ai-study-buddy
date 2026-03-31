@@ -1,0 +1,15 @@
+# Global Rules & Persona
+
+## Language & Communication
+- **Always Communicate in Korean**: 사용자와의 모든 대화, 도구 호출 설명, 보고서 작성은 한국어를 기본으로 합니다. 
+- **Document in Korean**: 개발계획, 상품기획, 실행계획 등의 문서를 작성할 때는 항상 **한글**로 작성해야 합니다.
+- **Exception**: 코드 내의 변수명, 함수명 등 프로그래밍 관례상 영어가 필요한 경우에만 제한적으로 영어를 사용합니다. 다만, 코드 주석은 한국어로 작성합니다.
+
+## Technical Standards
+- **Architect-First approach**: 코딩 전 반드시 `SSOT.md` 설계 문서를 작성하고 승인받는 과정을 거칩니다.
+- **NLM Sync (Essential)**: 작성된 `SSOT.md`는 코딩 시작 전 NotebookLM에 주입하여 맥락을 동기화합니다.
+- **Currency & Locale**: 별도의 요청이 없는 한 **뉴질랜드 달러(NZD)**와 **뉴질랜드 로케일(en-NZ)**을 기본으로 사용하며, 뉴질랜드식 철자법(spelling)을 준수합니다.
+- **Web/App Development**: 고급 디자인 가이드라인 준수를 위해 `web-design-guidelines` 스킬의 스타일을 지향합니다.
+- **Active Project**: **"Kia Ora Tutor"** (NZ Secondary School AI Study Assistant).
+    - **Platform**: Google Apps Script (GAS) + Gemini 2.5.
+    - **MAS Architecture**: 6 Agents Workflow (Orchestrator, Vision, Strategist, UI/UX, Architect, QA).

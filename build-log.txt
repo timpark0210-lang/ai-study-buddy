@@ -1,0 +1,45 @@
+﻿node.exe : ⚠ Warning: Next.js inferred your workspace root, b
+ut it may not be correct.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\node
+js/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (⚠ Warning: Next 
+   ...not be correct.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ We detected multiple lockfiles and selected the directory of
+ C:\Users\flyto\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.j
+s config, or consider removing one of the lockfiles if it's n
+ot needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-
+config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\flyto\Project\ai-study-buddy\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+
+⚠ The "middleware" file convention is deprecated. Please use 
+"proxy" instead. Learn more: https://nextjs.org/docs/messages
+/middleware-to-proxy
+  Creating an optimized production build ...
+✓ Compiled successfully in 8.3s
+  Running TypeScript ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/8) ...
+  Generating static pages using 7 workers (2/8) 
+Error occurred prerendering page "/quiz". Read more: https://
+nextjs.org/docs/messages/prerender-error
+Error: useStudyStore must be used within StudyProvider
+    at d (C:\Users\flyto\Project\ai-study-buddy\.next\server\
+chunks\ssr\[root-of-the-server]__971ccf86._.js:1:727)
+    at f (C:\Users\flyto\Project\ai-study-buddy\.next\server\
+chunks\ssr\[root-of-the-server]__971ccf86._.js:1:1015) {
+  digest: '3478209873'
+}
+Export encountered an error on /quiz/page: /quiz, exiting the
+ build.
+⨯ Next.js build worker exited with code: 1 and signal: null

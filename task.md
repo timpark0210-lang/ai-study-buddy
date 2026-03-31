@@ -1,0 +1,21 @@
+# Task List - Kia Ora Tutor Modernization
+
+- [x] **Phase 1: 환경 설정 및 핵심 인프라 (Core Foundation)**
+    - [x] `package.json` 종속성 업데이트 및 설치 확정
+    - [x] 🧬 `types.ts` 신경망 확장 및 규격화
+    - [x] 🤖 `BaseAgent.ts` 엔진 본체 구현
+    - [x] 🛡️ MAS 에이전트(5종) 리팩토링 및 신규 장착 완료
+    - [x] 🎼 `AgentOrchestrator.ts` 통합 지휘체계 확립
+- [x] **Phase 2: 상태 관리 및 API 레이어 (Bridge)**
+    - [x] Zustand Global Store (User, Library, Artifacts) 구축 완료
+    - [x] Next.js API Routes (`/api/chat` 모드 지원) 고도화 완료
+- [ ] **Phase 3: 프리미엄 컴포넌트 마이그레이션 (UI/UX)**
+    - [ ] Tailwind v4 기반 디자인 시스템 테마 설정 [/]
+    - [ ] Glassmorphism 레이아웃 및 메인 대시보드 리액트화 [ ]
+    - [ ] Chat/Study/Quiz 전용 뷰어 컴포넌트 구현 [ ]
+- [ ] **Phase 4: 기능 통합 및 검증 (Integration)**
+    - [ ] IndexedDB(localforage) 연동 [ ]
+    - [ ] PDF 다운로드 및 실시간 데이터 동기화 [ ]
+- [ ] **Phase 5: 최종 배포 및 QA (Deploy)**
+    - [ ] 성능 최적화 및 Vercel 배포 [ ]
+    - [ ] 최종 QA 및 Walkthrough 작성 [ ]
