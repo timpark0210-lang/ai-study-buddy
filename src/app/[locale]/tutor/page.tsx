@@ -3,12 +3,14 @@
 import dynamic from "next/dynamic";
 import { StudyProvider } from "@/store/StudyContext";
 
-const TutorContent = dynamic(() => import("./TutorContent"), { ssr: false });
+const StudyView = dynamic(() => import("@/components/study/StudyView"), {
+    ssr: false,
+});
 
 export default function TutorPage() {
     return (
         <StudyProvider>
-            <TutorContent />
+            <StudyView />
         </StudyProvider>
     );
 }

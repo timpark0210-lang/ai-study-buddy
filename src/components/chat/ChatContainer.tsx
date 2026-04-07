@@ -1,9 +1,9 @@
-"use client";
-
-import { useState, useRef, useEffect, FormEvent } from "react";
+import { useState, useEffect, useRef, FormEvent } from "react";
+import GlassCard from "@/components/ui/GlassCard";
+import { motion, AnimatePresence } from "framer-motion";
 import { useViewStore } from "@/store/useViewStore";
 import { useUserStore } from "@/store/useUserStore";
-import { Send, Loader2, ImagePlus } from "lucide-react";
+import { ImagePlus, Loader2, Send } from "lucide-react";
 
 interface Message {
     role: "user" | "assistant";
@@ -68,81 +68,108 @@ export default function ChatContainer() {
     };
 
     return (
-        <div className="flex h-full flex-col">
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
-                {messages.length === 0 && (
-                    <div className="flex h-full items-center justify-center text-muted-foreground text-center">
-                        <div>
-                            <p className="text-2xl mb-2">🥝</p>
-                            <p className="font-medium">Kia Ora! Upload a photo of your work</p>
-                            <p className="text-sm">or ask me any question to get started.</p>
-                        </div>
-                    </div>
-                )}
-                {messages.map((msg, i) => (
-                    <div
-                        key={i}
-                        className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                    >
-                        <div
-                            className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-                                msg.role === "user"
-                                    ? "bg-primary text-primary-foreground rounded-br-md"
-                                    : "bg-muted text-foreground rounded-bl-md"
-                            }`}
+        <GlassCard className="flex flex-col h-[70vh] max-w-4xl mx-auto shadow-2xl border-white/10" delay={0.2}>
+            {/* Chat History Area */}
+            <div className="flex-1 overflow-y-auto px-6 py-8 scrollbar-hide">
+                <AnimatePresence initial={false}>
+                    {messages.length === 0 ? (
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="flex h-full items-center justify-center text-slate-400 text-center"
                         >
-                            {msg.content}
+                            <div className="space-y-4">
+                                <span className="text-5xl block animate-bounce">🥝</span>
+                                <h3 className="text-xl font-bold font-outfit text-white">Kia Ora! I'm your AI Tutor</h3>
+                                <p className="text-sm max-w-xs mx-auto opacity-70">Upload a study photo or ask me any question to kick off your learning journey.</p>
+                            </div>
+                        </motion.div>
+                    ) : (
+                        <div className="space-y-6">
+                            {messages.map((msg, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, x: msg.role === "user" ? 20 : -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                                >
+                                    <div
+                                        className={`max-w-[85%] rounded-3xl px-5 py-3.5 text-sm leading-relaxed shadow-lg ${
+                                            msg.role === "user"
+                                                ? "bg-gradient-to-br from-indigo-500 to-indigo-600 text-white rounded-tr-sm"
+                                                : "bg-white/5 border border-white/10 text-slate-200 rounded-tl-sm backdrop-blur-md"
+                                        }`}
+                                    >
+                                        {msg.content}
+                                    </div>
+                                </motion.div>
+                            ))}
                         </div>
-                    </div>
-                ))}
+                    )}
+                </AnimatePresence>
+                
                 {isLoading && (
-                    <div className="flex justify-start">
-                        <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
-                            <Loader2 size={16} className="animate-spin text-muted-foreground" />
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="flex justify-start mt-6"
+                    >
+                        <div className="bg-white/5 border border-white/10 rounded-3xl rounded-tl-sm px-5 py-3 flex items-center gap-3">
+                            <div className="flex gap-1">
+                                <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                                <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                                <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                            </div>
+                            <span className="text-xs font-medium text-slate-400 font-outfit uppercase tracking-wider">Tutor is thinking...</span>
                         </div>
-                    </div>
+                    </motion.div>
                 )}
-                <div ref={bottomRef} />
+                <div ref={bottomRef} className="h-4" />
             </div>
 
-            {/* Image Preview */}
-            {image && (
-                <div className="px-4 pb-2">
-                    <div className="inline-flex items-center gap-2 rounded-lg bg-muted px-3 py-1.5 text-xs">
-                        📎 Image attached
-                        <button onClick={() => setImage(null)} className="text-muted-foreground hover:text-foreground">✕</button>
-                    </div>
-                </div>
-            )}
-
-            {/* Input */}
-            <form onSubmit={handleSubmit} className="border-t border-border p-4">
-                <div className="mx-auto flex max-w-3xl items-center gap-2">
+            {/* Input Area Overlay */}
+            <div className="px-6 pb-8 pt-4">
+                <form 
+                    onSubmit={handleSubmit} 
+                    className="relative flex items-center gap-3 bg-black/40 border border-white/10 rounded-[28px] p-2 focus-within:border-indigo-500/50 transition-all shadow-inner"
+                >
                     <input type="file" ref={fileRef} accept="image/*" className="hidden" onChange={handleImageUpload} />
                     <button
                         type="button"
                         onClick={() => fileRef.current?.click()}
-                        className="rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                        className={`rounded-full p-3 transition-all ${image ? "bg-teal-500/20 text-teal-400" : "text-slate-400 hover:bg-white/5 hover:text-white"}`}
                     >
-                        <ImagePlus size={18} />
+                        <ImagePlus size={20} />
                     </button>
+                    
                     <input
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        placeholder="Ask me anything..."
-                        className="flex-1 rounded-full border border-input bg-background px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring/20"
+                        placeholder="Type your question here..."
+                        className="flex-1 bg-transparent px-2 py-3 text-sm outline-none placeholder:text-slate-600 text-white"
                         disabled={isLoading}
                     />
+                    
                     <button
                         type="submit"
                         disabled={isLoading || (!input.trim() && !image)}
-                        className="btn-premium disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="bg-indigo-500 hover:bg-indigo-400 text-white rounded-full p-3 shadow-lg disabled:opacity-20 disabled:grayscale transition-all"
                     >
-                        <Send size={16} />
+                        {isLoading ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
                     </button>
-                </div>
-            </form>
-        </div>
+                    
+                    {image && (
+                        <motion.div 
+                            initial={{ scale: 0 }} 
+                            animate={{ scale: 1 }}
+                            className="absolute -top-12 left-2 flex items-center gap-2 bg-teal-500/90 text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-tighter"
+                        >
+                            📎 Image Ready
+                            <button onClick={() => setImage(null)} className="hover:scale-125 transition-transform">✕</button>
+                        </motion.div>
+                    )}
+                </form>
+            </div>
+        </GlassCard>
     );
 }

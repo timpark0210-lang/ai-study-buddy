@@ -3,12 +3,14 @@
 import dynamic from "next/dynamic";
 import { StudyProvider } from "@/store/StudyContext";
 
-const FlashcardQuiz = dynamic(() => import("./FlashcardQuiz"), { ssr: false });
+const StudyView = dynamic(() => import("@/components/study/StudyView"), {
+    ssr: false,
+});
 
-export default function QuizPage() {
+export default function LibraryPage() {
     return (
         <StudyProvider>
-            <FlashcardQuiz />
+            <StudyView />
         </StudyProvider>
     );
 }

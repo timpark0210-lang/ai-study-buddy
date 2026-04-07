@@ -1,34 +1,38 @@
-import { ReactNode, HTMLAttributes } from "react";
+'use client';
 
-interface GlassCardProps extends HTMLAttributes<HTMLDivElement> {
-    children: ReactNode;
-    hoverEffect?: boolean;
-    intensity?: "light" | "medium" | "heavy";
+import { ReactNode } from 'react';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
+
+interface GlassCardProps {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
 }
 
-export function GlassCard({
-    children,
-    className = "",
-    hoverEffect = true,
-    intensity = "medium",
-    ...props
-}: GlassCardProps) {
-    const intensityClasses = {
-        light: "bg-white/5 backdrop-blur-sm",
-        medium: "bg-white/5 backdrop-blur-md",
-        heavy: "bg-white/10 backdrop-blur-lg",
-    };
-
-    const combinedClassName = [
-        "glass-card border border-white/10 rounded-2xl overflow-hidden",
-        intensityClasses[intensity],
-        hoverEffect ? "transition-all duration-300 hover:border-white/20 hover:bg-white/10" : "",
+export default function GlassCard({ children, className, delay = 0 }: GlassCardProps) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ 
+        duration: 0.8, 
+        delay, 
+        ease: [0.16, 1, 0.3, 1] // Premium ease-out
+      }}
+      className={cn(
+        "glass-card p-6 overflow-hidden relative group",
+        "bg-[var(--glass-bg)] border-[var(--glass-border)] backdrop-blur-3xl",
+        "rounded-[24px] shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]",
         className
-    ].filter(Boolean).join(" ");
-
-    return (
-        <div className={combinedClassName} {...props}>
-            {children}
-        </div>
-    );
+      )}
+    >
+      {/* Mesh Gradient Subtle Background inside card */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
+      
+      <div className="relative z-10">
+        {children}
+      </div>
+    </motion.div>
+  );
 }

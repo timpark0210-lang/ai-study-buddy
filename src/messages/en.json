@@ -27,6 +27,27 @@
     "Common": {
         "language": "Language",
         "dashboard": "Dashboard",
-        "profile": "Profile"
+        "profile": "Profile",
+        "home": "Home",
+        "tutor": "AI Tutor",
+        "quiz": "Quiz Master",
+        "library": "Study Library"
+    },
+    "Tutor": {
+        "title": "Kia Ora! AI Tutor",
+        "subtitle": "Your personal guide to mastering any concept.",
+        "inputPlaceholder": "Ask me anything...",
+        "uploadButton": "Upload Study Material"
+    },
+    "Quiz": {
+        "title": "Concept Mastery Quiz",
+        "subtitle": "Test your knowledge with AI-driven challenges.",
+        "start": "Start Quiz",
+        "next": "Next Question"
+    },
+    "Library": {
+        "title": "Personal Study Library",
+        "subtitle": "Access your saved materials and progress.",
+        "empty": "Your library is empty. Start by uploading a problem!"
     }
 }
