@@ -7,9 +7,11 @@
 
 ## Technical Standards
 - **Architect-First approach**: 코딩 전 반드시 `SSOT.md` 설계 문서를 작성하고 승인받는 과정을 거칩니다.
-- **NLM Sync (Essential)**: 작성된 `SSOT.md`는 코딩 시작 전 NotebookLM에 주입하여 맥락을 동기화합니다.
-- **Currency & Locale**: 별도의 요청이 없는 한 **뉴질랜드 달러(NZD)**와 **뉴질랜드 로케일(en-NZ)**을 기본으로 사용하며, 뉴질랜드식 철자법(spelling)을 준수합니다.
-- **Web/App Development**: 고급 디자인 가이드라인 준수를 위해 `web-design-guidelines` 스킬의 스타일을 지향합니다.
-- **Active Project**: **"Kia Ora Tutor"** (NZ Secondary School AI Study Assistant).
-    - **Platform**: Google Apps Script (GAS) + Gemini 2.5.
-    - **MAS Architecture**: 6 Agents Workflow (Orchestrator, Vision, Strategist, UI/UX, Architect, QA).
+- **SSOT Sync (Essential)**: 작성된 `SSOT.md`는 맥락의 근간이며, 모든 작업은 이 문서에 정의된 기술 스택(Next.js 16, Tailwind v4)을 따릅니다.
+- **Operational Guard (Windows)**: PowerShell 환경에서 `&&` 대신 `;`를 사용하고, Git commit 시 괄호`()` 사용을 금지하여 기술적 지연을 방지합니다.
+- **Currency & Locale**: **NZD ($)** 및 **en-NZ** 로케일을 기본으로 하며, 뉴질랜드식 철자법을 준수합니다.
+
+## Active Project: Kia Ora Tutor
+- **Platform**: Next.js 16.1.6 (Turbopack) + Gemini 1.5/2.5.
+- **Architecture**: Internationalized routing (`src/app/[locale]`), Zustand state, Tailwind v4 styling.
+- **Core Vision**: 뉴질랜드 중등학교 학생들을 위한 프리미엄 AI 학습 보조 시스템.
