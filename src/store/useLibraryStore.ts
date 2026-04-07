@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { persist, StateStorage, createJSONStorage } from 'zustand/middleware';
 import localforage from 'localforage';
-import { AppState, SourceFile, ChatMessage } from '@/types';
-import { uploadToBlob } from '@/lib/actions';
+import { AppState, SourceFile, ChatMessage, ActiveView, StudySession } from '@/types';
+import { uploadToBlob, syncHistoryAction } from '@/lib/actions';
 
 // Configure LocalForage
 localforage.config({
@@ -11,11 +11,9 @@ localforage.config({
   description: 'Offline storage for study materials and chat history'
 });
 
-// Custom storage engine for Zustand using LocalForage
 const localForageStorage: StateStorage = {
   getItem: async (name: string): Promise<string | null> => {
-    const value = await localforage.getItem<string>(name);
-    return value || null;
+    return await localforage.getItem<string>(name) || null;
   },
   setItem: async (name: string, value: string): Promise<void> => {
     await localforage.setItem(name, value);
@@ -25,12 +23,20 @@ const localForageStorage: StateStorage = {
   },
 };
 
+// Debounce Timer Ref for JSON Overwrite API calls
+let syncTimeout: NodeJS.Timeout | null = null;
+
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
       locale: 'en',
+      activeView: 'UPLOAD',
+      
       libraryFiles: [],
       sessionFiles: [],
+      studySessions: [],
+      currentSessionId: null,
+      
       chatMessages: [
          {
              id: 'welcome',
@@ -41,12 +47,24 @@ export const useAppStore = create<AppState>()(
       ],
       learnedArtifacts: [],
 
-      addFileToLibrary: async (file: SourceFile) => {
+      setActiveView: (view: ActiveView) => set({ activeView: view }),
+      
+      setCurrentSessionId: (id: string | null) => set({ currentSessionId: id }),
+
+      addStudySession: (session: StudySession) => {
+        set((state) => ({ studySessions: [session, ...state.studySessions] }));
+        get().syncHistoryToJson(); // Auto trigger debounced sync
+      },
+
+      updateStudySession: (id: string, data: Partial<StudySession>) => {
         set((state) => ({
-          libraryFiles: [...state.libraryFiles, file]
+          studySessions: state.studySessions.map(s => s.id === id ? { ...s, ...data } : s)
         }));
-        // Auto-trigger sync if online (Optional, but good for UX)
-        // get().syncWithBlob(); 
+        get().syncHistoryToJson(); // Auto trigger debounced sync
+      },
+
+      addFileToLibrary: async (file: SourceFile) => {
+        set((state) => ({ libraryFiles: [...state.libraryFiles, file] }));
       },
 
       syncWithBlob: async () => {
@@ -55,12 +73,9 @@ export const useAppStore = create<AppState>()(
         
         if (unsyncedFiles.length === 0) return;
 
-        console.log(`Syncing ${unsyncedFiles.length} files with Vercel Blob...`);
-
         for (const file of unsyncedFiles) {
           try {
             const result = await uploadToBlob(file.base64!, file.name, file.mimeType);
-            
             if (result.success) {
               set((state) => ({
                 libraryFiles: state.libraryFiles.map(f => 
@@ -69,7 +84,6 @@ export const useAppStore = create<AppState>()(
                     : f
                 )
               }));
-              console.log(`Successfully synced: ${file.name}`);
             }
           } catch (err) {
             console.error(`Sync failed for ${file.name}:`, err);
@@ -77,10 +91,24 @@ export const useAppStore = create<AppState>()(
         }
       },
 
+      // Edge-Case Defense: Debounced Cloud Overwrite (Zero-DB LMS)
+      syncHistoryToJson: async () => {
+        if (syncTimeout) clearTimeout(syncTimeout);
+        
+        syncTimeout = setTimeout(async () => {
+          try {
+             const { studySessions } = get();
+             const jsonString = JSON.stringify(studySessions);
+             await syncHistoryAction(jsonString);
+             console.log("Vercel Blob user_history.json successfully backed up.");
+          } catch (err) {
+             console.error("History Backup Failed", err);
+          }
+        }, 3000); // 3 Second Debounce delay
+      },
+
       addMessage: (msg: ChatMessage) => {
-        set((state) => ({
-          chatMessages: [...state.chatMessages, msg]
-        }));
+        set((state) => ({ chatMessages: [...state.chatMessages, msg] }));
       },
 
       clearSession: () => {
@@ -94,7 +122,8 @@ export const useAppStore = create<AppState>()(
                timestamp: Date.now()
             }
           ],
-          learnedArtifacts: []
+          learnedArtifacts: [],
+          currentSessionId: null
         }));
       }
     }),
@@ -103,10 +132,11 @@ export const useAppStore = create<AppState>()(
       storage: createJSONStorage(() => localForageStorage),
       partialize: (state) => ({ 
         libraryFiles: state.libraryFiles, 
+        studySessions: state.studySessions,
         chatMessages: state.chatMessages,
         learnedArtifacts: state.learnedArtifacts,
         locale: state.locale
-      }), // only persist these fields
+      }),
     }
   )
 );

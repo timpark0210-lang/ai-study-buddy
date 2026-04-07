@@ -52,23 +52,49 @@ export interface QuizSession {
 }
 
 /**
- * 4. Zustand State Architecture (AppStore)
+ * 4. DB-less LMS Data (CR-008)
  */
+export interface StudySession {
+  id: string;
+  fileName: string;
+  fileType: 'pdf' | 'image' | 'word';
+  blobUrl: string;       // Vercel Blob 원본 링크
+  subject: string;       // AI 자동 추론 과목명
+  guideMarkdown: string; // 생성된 핵심 개념 요약본
+  quizData: QuizQuestion[] | null; // 생성된 퀴즈 객체
+  quizScore: number | null; 
+  createdAt: string;
+}
+
+/**
+ * 5. Zustand State Architecture (AppStore)
+ */
+export type ActiveView = 'UPLOAD' | 'STUDY' | 'QUIZ' | 'LIBRARY';
+
 export interface AppState {
-  // Global State
+  // Global View State
   locale: 'en' | 'ko';
+  activeView: ActiveView;
   
   // Storage State
   libraryFiles: SourceFile[];
   sessionFiles: SourceFile[];
+  studySessions: StudySession[]; // DB-less Persistence Store
+  currentSessionId: string | null; // To bind active AI responses
+
   
   // Chat State
   chatMessages: ChatMessage[];
   learnedArtifacts: string[]; // Important concepts extracted by AI
   
   // Actions
+  setActiveView: (view: ActiveView) => void;
+  addStudySession: (session: StudySession) => void;
+  updateStudySession: (id: string, data: Partial<StudySession>) => void;
+  setCurrentSessionId: (id: string | null) => void;
   addFileToLibrary: (file: SourceFile) => Promise<void>;
   syncWithBlob: () => Promise<void>;
+  syncHistoryToJson: () => Promise<void>; // Backup history to Vercel JSON
   addMessage: (msg: ChatMessage) => void;
   clearSession: () => void;
 }

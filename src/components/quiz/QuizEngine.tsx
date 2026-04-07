@@ -7,17 +7,20 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 
+import { StudySession } from '@/types';
+
 interface QuizEngineProps {
-  quizData: QuizQuestion[];
-  onComplete: (score: number, total: number) => void;
-  onCancel: () => void;
+  session: StudySession;
+  onFinish: (score: number) => void;
 }
 
-export default function QuizEngine({ quizData, onComplete, onCancel }: QuizEngineProps) {
+export default function QuizEngine({ session, onFinish }: QuizEngineProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
+
+  const quizData = session.quizData;
 
   if (!quizData || quizData.length === 0) return null;
 
@@ -41,7 +44,7 @@ export default function QuizEngine({ quizData, onComplete, onCancel }: QuizEngin
       setSelectedOption(null);
       setShowExplanation(false);
     } else {
-      onComplete(score, quizData.length);
+      onFinish(score);
     }
   };
 
@@ -62,7 +65,7 @@ export default function QuizEngine({ quizData, onComplete, onCancel }: QuizEngin
           <div className="font-semibold text-slate-300">
             Score: <span className="text-white bg-slate-800 px-2 py-0.5 rounded-md">{score}</span>
           </div>
-          <button onClick={onCancel} className="text-slate-400 hover:text-red-400 transition-colors">
+          <button onClick={() => onFinish(score)} className="text-slate-400 hover:text-red-400 transition-colors" title="Exit Quiz">
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>
