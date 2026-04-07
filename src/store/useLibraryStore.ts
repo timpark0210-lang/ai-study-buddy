@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, StateStorage, createJSONStorage } from 'zustand/middleware';
 import localforage from 'localforage';
 import { AppState, SourceFile, ChatMessage } from '@/types';
+import { uploadToBlob } from '@/lib/actions';
 
 // Configure LocalForage
 localforage.config({
@@ -44,12 +45,36 @@ export const useAppStore = create<AppState>()(
         set((state) => ({
           libraryFiles: [...state.libraryFiles, file]
         }));
+        // Auto-trigger sync if online (Optional, but good for UX)
+        // get().syncWithBlob(); 
       },
 
       syncWithBlob: async () => {
-        // Implementation will call Server Actions to upload to Vercel Blob
-        // It should update the 'isSynced' and 'url' properties
-        console.log('Syncing outstanding files with Vercel Blob...');
+        const { libraryFiles } = get();
+        const unsyncedFiles = libraryFiles.filter(f => !f.isSynced && f.base64);
+        
+        if (unsyncedFiles.length === 0) return;
+
+        console.log(`Syncing ${unsyncedFiles.length} files with Vercel Blob...`);
+
+        for (const file of unsyncedFiles) {
+          try {
+            const result = await uploadToBlob(file.base64!, file.name, file.mimeType);
+            
+            if (result.success) {
+              set((state) => ({
+                libraryFiles: state.libraryFiles.map(f => 
+                  f.id === file.id 
+                    ? { ...f, isSynced: true, url: result.url, base64: undefined } 
+                    : f
+                )
+              }));
+              console.log(`Successfully synced: ${file.name}`);
+            }
+          } catch (err) {
+            console.error(`Sync failed for ${file.name}:`, err);
+          }
+        }
       },
 
       addMessage: (msg: ChatMessage) => {
