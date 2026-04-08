@@ -61,9 +61,17 @@ export default function MaterialUploader({ onUploadComplete }: MaterialUploaderP
       // 특수문자나 공백이 URL 인코딩 되면서 Token Signature Mismatch (403/가짜 CORS) 발생 방지
       const safeFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
 
+      // 디버깅: 업로드할 원본 파일 객체의 무결성 검증 로깅
+      console.log(`[MaterialUploader] Initiating upload for file: ${safeFilename}`);
+      console.log(`[MaterialUploader] File info: size=${file.size} bytes (${(file.size/1024/1024).toFixed(2)}MB), type=${file.type}`);
+      if (!file || file.size === 0) {
+        throw new Error('File object is empty or corrupted.');
+      }
+
       // 기존 업로드 로직과 타임아웃 경합
       const uploadPromise = upload(`materials/${Date.now()}-${safeFilename}`, file, {
         access: 'public',
+        multipart: true, // 대용량 파일(4.5MB 이상) 안전 처리를 위한 강제 multipart 지정
         handleUploadUrl: '/api/upload', // 원복 (이전 절대경로 설정은 옵셔널)
         onUploadProgress: (progressEvent) => {
           const percentage = Math.round(progressEvent.percentage);
