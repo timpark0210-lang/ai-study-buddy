@@ -56,8 +56,13 @@ export async function generateQuizAction(content: string, count: number = 5) {
 
         const result = await model.generateContent(prompt);
         const text = result.response.text();
-        const jsonMatch = text.match(/\[.*\]/s);
-        const quizData = jsonMatch ? JSON.parse(jsonMatch[0]) : [];
+        // JSON 배열 형태의 응답 파싱 - 구버전 ts 컴파일러 호환을 위해 /s 플래그 대신 [\s\S]* 사용
+        const jsonMatch = text.match(/\[[\s\S]*\]/);
+        if (!jsonMatch) {
+          console.error('AI Response text:', text);
+          throw new Error('Failed to parse AI response into JSON. No JSON array found.');
+        }
+        const quizData = JSON.parse(jsonMatch[0]);
 
         return { success: true, data: quizData };
     } catch (error) {
