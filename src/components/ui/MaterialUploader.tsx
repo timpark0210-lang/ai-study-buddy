@@ -61,7 +61,7 @@ export default function MaterialUploader({ onUploadComplete }: MaterialUploaderP
       // 기존 업로드 로직과 타임아웃 경합
       const uploadPromise = upload(`materials/${Date.now()}-${file.name}`, file, {
         access: 'public',
-        handleUploadUrl: '/api/upload',
+        handleUploadUrl: `${window.location.origin}/api/upload`,
         onUploadProgress: (progressEvent) => {
           const percentage = Math.round(progressEvent.percentage);
           setProgress(percentage);
