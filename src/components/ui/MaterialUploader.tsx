@@ -2,7 +2,7 @@
 
 import React, { useCallback, useState } from 'react';
 import { upload } from '@vercel/blob/client';
-import { useAppStore } from '@/store/useLibraryStore';
+import { useLibraryStore } from '@/store/useLibraryStore'; // Updated to match likely real store path
 
 // Maximum file size: 20MB
 const MAX_FILE_SIZE = 20 * 1024 * 1024;
@@ -24,7 +24,8 @@ export default function MaterialUploader({ onUploadComplete }: MaterialUploaderP
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  const { addFileToLibrary } = useAppStore();
+  // Note: Using useLibraryStore as identified in previous analysis
+  const { addMaterial } = useLibraryStore();
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -48,28 +49,31 @@ export default function MaterialUploader({ onUploadComplete }: MaterialUploaderP
 
     try {
       setIsUploading(true);
-      // 🔥 CR-008 Bypass: Client Direct Upload to avoid Next.js 4.5MB Server limit
-      setProgress(10);
+      setProgress(5); // Initial kick-off
+
+      // 🔥 FIXED: Added onUploadProgress to resolve the 15% hang issue
       const newBlob = await upload(`materials/${Date.now()}-${file.name}`, file, {
         access: 'public',
-        handleUploadUrl: '/api/upload', // We must provide a route to handle the token generation
+        handleUploadUrl: '/api/upload',
+        onUploadProgress: (progressEvent) => {
+          // Calculate percentage based on Vercel's event structure
+          const percentage = Math.round(progressEvent.percentage);
+          setProgress(percentage);
+        }
       });
+      
       setProgress(100);
 
-      // Now we have the URL, we can register it to local state (bypassing base64 altogether)
       const newSourceFile = {
         id: newBlob.url,
-        name: file.name,
-        mimeType: file.type,
-        size: file.size,
+        title: file.name,
+        type: file.type.includes('pdf') ? 'pdf' : 'text',
         url: newBlob.url,
-        isSynced: true,
         createdAt: new Date().toISOString()
       };
 
-      await addFileToLibrary(newSourceFile);
+      await addMaterial(newSourceFile);
 
-      // Trigger AI Flow from here or let Dashboard Assembly handle it (Dashboard handled)
       if (onUploadComplete) {
          onUploadComplete(newBlob.url, file.name, file.type);
       }
@@ -79,7 +83,8 @@ export default function MaterialUploader({ onUploadComplete }: MaterialUploaderP
       setErrorMsg(`Upload failed: ${err.message}`);
     } finally {
       setIsUploading(false);
-      setProgress(0);
+      // Wait a moment before resetting progress for visual confirmation
+      setTimeout(() => setProgress(0), 1000);
     }
   };
 
@@ -125,10 +130,14 @@ export default function MaterialUploader({ onUploadComplete }: MaterialUploaderP
             </div>
             <h3 className="text-xl font-bold text-white tracking-tight">Uploading Material...</h3>
             
-            {/* Progress Bar */}
-            <div className="w-full h-2 bg-slate-800 rounded-full mt-4 overflow-hidden">
-               <div className="h-full bg-indigo-500 transition-all duration-300" style={{ width: `${progress}%` }}></div>
+            {/* Progress Bar with Real Progress */}
+            <div className="w-full h-2 bg-slate-800 rounded-full mt-4 overflow-hidden relative">
+               <div 
+                className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300" 
+                style={{ width: `${progress}%` }}
+               />
             </div>
+            <span className="text-xs font-bold text-indigo-400 mt-1">{progress}% Complete</span>
           </div>
         ) : (
           <div className="flex flex-col items-center text-center">

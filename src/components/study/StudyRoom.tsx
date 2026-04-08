@@ -1,99 +1,101 @@
-"use client";
+"use client"; 
+import React, { useRef, useState } from 'react'; 
+import ReactMarkdown from 'react-markdown'; 
+import remarkMath from 'remark-math'; 
+import rehypeKatex from 'rehype-katex'; 
+import 'katex/dist/katex.min.css'; 
+import { StudySession } from '@/store/useLibraryStore'; 
 
-import React, { useRef, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkMath from 'remark-math';
-import rehypeKatex from 'rehype-katex';
-import 'katex/dist/katex.min.css';
-import { StudySession } from '@/types';
+interface StudyRoomProps { 
+  session: StudySession; 
+  onStartQuiz: () => void; 
+} 
 
-interface StudyRoomProps {
-  session: StudySession;
-  onStartQuiz: () => void;
-}
+export default function StudyRoom({ session, onStartQuiz }: StudyRoomProps) { 
+  const contentRef = useRef<HTMLDivElement>(null); 
+  const [isExporting, setIsExporting] = useState(false); 
 
-export default function StudyRoom({ session, onStartQuiz }: StudyRoomProps) {
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [isExporting, setIsExporting] = useState(false);
+  /**
+   * 🔥 Export study guide to PDF for offline learning
+   */
+  const handleExportPDF = async () => { 
+    if (!contentRef.current) return; 
+    try { 
+      setIsExporting(true); 
+      // Dynamic import to keep bundle small
+      const html2pdf = (await import('html2pdf.js')).default; 
+      const opt = { 
+        margin: 0.5, 
+        filename: `StudyBuddy_${session.subject}_${Date.now()}.pdf`, 
+        image: { type: 'jpeg' as const, quality: 0.98 }, 
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#020617' }, // Slate-950
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' as const } 
+      }; 
+      await html2pdf().set(opt).from(contentRef.current).save(); 
+    } catch (err: any) { 
+      console.error(err);
+      alert('PDF generation failed. Please try again.'); 
+    } finally { 
+      setIsExporting(false); 
+    } 
+  }; 
 
-  const handleExportPDF = async () => {
-    if (!contentRef.current) return;
-    try {
-      setIsExporting(true);
-      const html2pdf = (await import('html2pdf.js')).default;
-      const opt = {
-        margin: 0.5,
-        filename: `KiaOraTutor_${session.fileName}.pdf`,
-        image: { type: 'jpeg' as const, quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' as const }
-      };
+  return ( 
+    <div className="w-full max-w-5xl mx-auto flex flex-col min-h-[85vh]"> 
       
-      await html2pdf().set(opt).from(contentRef.current).save();
-    } catch (err: any) {
-      alert('PDF generation failed: ' + err.message);
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  return (
-    <div className="w-full max-w-4xl mx-auto flex flex-col h-[calc(100vh-2rem)]">
-      {/* Header Panel */}
-      <div className="glass-card mb-6 p-4 flex items-center justify-between z-10 shrink-0">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-indigo-500/20 text-indigo-400 rounded-xl flex items-center justify-center">
-             <span className="material-symbols-outlined text-3xl">menu_book</span>
-          </div>
-          <div>
-            <h1 className="text-lg font-bold text-white tracking-tight">Personalized Study Guide</h1>
-            <div className="text-xs text-indigo-400 font-medium flex items-center gap-1">
-              <span className="material-symbols-outlined text-[14px]">label</span>
-              {session.subject} • {session.fileName}
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
+      {/* Top Action Bar */}
+      <div className="glass-card mb-8 p-6 flex flex-col md:flex-row items-center justify-between gap-6 z-10 shrink-0 sticky top-4 shadow-2xl border-indigo-500/20"> 
+        <div className="flex items-center gap-5"> 
+          <div className="w-14 h-14 bg-gradient-to-tr from-indigo-500 to-purple-500 text-white rounded-2xl flex items-center justify-center shadow-lg transform -rotate-3 group-hover:rotate-0 transition-transform"> 
+            <span className="material-symbols-outlined text-3xl font-bold">auto_stories</span> 
+          </div> 
+          <div> 
+            <h1 className="text-xl font-black text-white tracking-tighter uppercase">{session.subject}</h1> 
+            <div className="text-xs text-indigo-400 font-bold flex items-center gap-2 mt-1"> 
+              <span className="bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">{session.fileType.toUpperCase()}</span> 
+              <span className="text-slate-500">•</span> 
+              <span className="line-clamp-1 max-w-[200px]">{session.fileName}</span> 
+            </div> 
+          </div> 
+        </div> 
+        
+        <div className="flex items-center gap-4 w-full md:w-auto"> 
           <button 
             onClick={handleExportPDF} 
-            disabled={isExporting}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm text-slate-300 bg-slate-800/50 hover:bg-slate-700 hover:text-white transition-all"
-          >
-            {isExporting ? (
-              <><span className="material-symbols-outlined animate-spin text-lg">sync</span> Exporting...</>
-            ) : (
-              <><span className="material-symbols-outlined text-lg">picture_as_pdf</span> PDF</>
-            )}
-          </button>
+            disabled={isExporting} 
+            className="flex-1 md:flex-none flex items-center justify-center gap-3 px-6 py-3 rounded-2xl font-bold text-sm text-slate-300 bg-slate-900 border border-slate-800 hover:bg-slate-800 hover:text-white transition-all shadow-xl" 
+          > 
+            {isExporting ? ( 
+              <><span className="material-symbols-outlined animate-spin text-xl">progress_activity</span> Exporting...</> 
+            ) : ( 
+              <><span className="material-symbols-outlined text-xl text-indigo-400">download</span> Save as PDF</> 
+            )} 
+          </button> 
           <button 
             onClick={onStartQuiz} 
-            disabled={!session.quizData}
-            className={`btn-premium py-2 px-5 text-sm ${!session.quizData ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            <span className="material-symbols-outlined text-lg">quiz</span> 
-            {session.quizData ? "Start Quiz" : "Generating Quiz..."}
-          </button>
-        </div>
-      </div>
+            disabled={!session.quizData} 
+            className={`flex-1 md:flex-none bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-2xl shadow-xl shadow-indigo-600/20 transition-all flex items-center justify-center gap-3 ${!session.quizData ? 'opacity-50 grayscale cursor-not-allowed' : 'animate-pulse'}`} 
+          > 
+            <span className="material-symbols-outlined font-bold">rocket_launch</span> 
+            {session.quizData ? "Launch Quiz" : "Master Teacher is thinking..."} 
+          </button> 
+        </div> 
+      </div> 
 
-      {/* Content Area */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar pr-4 pb-12 z-10">
-        <div 
-          ref={contentRef}
-          className="glass-card p-8 md:p-12 min-h-full bg-card"
-        >
-          {/* We wrap the markdown in our tailored typography class */}
-          <div className="prose-premium selection:bg-indigo-500/30">
-            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-              {session.guideMarkdown}
-            </ReactMarkdown>
-          </div>
-        </div>
-      </div>
-      
-      {/* Background Decorative Mesh */}
-      <div className="fixed top-20 right-0 w-96 h-96 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob pointer-events-none"></div>
-      <div className="fixed bottom-20 left-20 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000 pointer-events-none"></div>
-    </div>
-  );
+      {/* Main Content Area */}
+      <div className="flex-1 pb-20 relative"> 
+        <div ref={contentRef} className="glass-card p-10 md:p-16 min-h-full bg-slate-950 border-slate-800/50 shadow-[0_0_50px_rgba(0,0,0,0.5)]" > 
+          <div className="prose-premium selection:bg-indigo-500/30 selection:text-white"> 
+            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}> 
+              {session.guideMarkdown} 
+            </ReactMarkdown> 
+          </div> 
+        </div> 
+
+        {/* Ambient Background Glows */}
+        <div className="fixed top-1/4 right-0 w-[500px] h-[500px] bg-indigo-600 rounded-full mix-blend-screen filter blur-[120px] opacity-[0.03] animate-pulse pointer-events-none"></div> 
+        <div className="fixed bottom-1/4 left-0 w-[500px] h-[500px] bg-purple-600 rounded-full mix-blend-screen filter blur-[120px] opacity-[0.03] animate-pulse pointer-events-none animation-delay-3000"></div> 
+      </div> 
+    </div> 
+  ); 
 }

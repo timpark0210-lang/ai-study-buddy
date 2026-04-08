@@ -9,8 +9,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       body,
       request,
       onBeforeGenerateToken: async (pathname) => {
-        // Here you could verify standard auth sessions (e.g. NextAuth)
-        // For Kia Ora Tutor MVP, we allow public uploads.
+        // 🔥 Phase 3: Added support for PDF, Image and DOCX
         return {
           allowedContentTypes: [
             'application/pdf', 
@@ -20,12 +19,12 @@ export async function POST(request: Request): Promise<NextResponse> {
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
           ],
           tokenPayload: JSON.stringify({
-            // optional payload
+            userId: 'user_dev_asher', 
           }),
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
-        // Runs after upload
+        // This hook is called on the server when a file is successfully uploaded
         console.log('blob upload completed', blob, tokenPayload);
       },
     });
@@ -34,7 +33,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   } catch (error) {
     return NextResponse.json(
       { error: (error as Error).message },
-      { status: 400 },
+      { status: 400 }
     );
   }
 }
