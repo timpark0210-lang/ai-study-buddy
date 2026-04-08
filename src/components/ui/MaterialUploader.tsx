@@ -99,6 +99,10 @@ export default function MaterialUploader({ onUploadComplete }: MaterialUploaderP
       
     } catch (err: any) {
       console.error('[MaterialUploader] Error:', err);
+      
+      // [임시 디버깅용 핫픽스] 에러 사유를 브라우저 팝업으로 강제로 띄웁니다.
+      alert(`[Vercel Blob 에러 사유]: ${err.message}`);
+
       // 에러 메시지 한글화 및 상세화
       let userFriendlyMsg = err.message;
       if (err.message.includes('400')) userFriendlyMsg = '업로드 요청이 거부되었습니다. 파일 형식을 확인해주세요.';
