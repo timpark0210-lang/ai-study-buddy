@@ -47,20 +47,28 @@ export default function MaterialUploader({ onUploadComplete }: MaterialUploaderP
       return;
     }
 
+    const uploadTimeout = 45000; // 45 seconds tolerance for large files
+
     try {
       setIsUploading(true);
-      setProgress(5); // Initial kick-off
+      setProgress(5);
 
-      // 🔥 FIXED: Added onUploadProgress to resolve the 15% hang issue
-      const newBlob = await upload(`materials/${Date.now()}-${file.name}`, file, {
+      // 타임아웃 프로미스 생성
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Upload timed out. Please check your network connection and try again.')), uploadTimeout);
+      });
+
+      // 기존 업로드 로직과 타임아웃 경합
+      const uploadPromise = upload(`materials/${Date.now()}-${file.name}`, file, {
         access: 'public',
         handleUploadUrl: '/api/upload',
         onUploadProgress: (progressEvent) => {
-          // Calculate percentage based on Vercel's event structure
           const percentage = Math.round(progressEvent.percentage);
           setProgress(percentage);
         }
       });
+
+      const newBlob = (await Promise.race([uploadPromise, timeoutPromise])) as any;
       
       setProgress(100);
 
@@ -79,11 +87,16 @@ export default function MaterialUploader({ onUploadComplete }: MaterialUploaderP
       }
       
     } catch (err: any) {
-      console.error(err);
-      setErrorMsg(`Upload failed: ${err.message}`);
+      console.error('[MaterialUploader] Error:', err);
+      // 에러 메시지 한글화 및 상세화
+      let userFriendlyMsg = err.message;
+      if (err.message.includes('400')) userFriendlyMsg = '업로드 요청이 거부되었습니다. 파일 형식을 확인해주세요.';
+      if (err.message.includes('500')) userFriendlyMsg = '서버 설정 오류입니다. 관리자(대표님)에게 문의해주세요.';
+      if (err.message.includes('timed out')) userFriendlyMsg = '업로드 시간이 초과되었습니다. 네트워크 상태를 확인하거나 잠시 후 다시 시도해주세요.';
+      
+      setErrorMsg(`업로드 실패: ${userFriendlyMsg}`);
     } finally {
       setIsUploading(false);
-      // Wait a moment before resetting progress for visual confirmation
       setTimeout(() => setProgress(0), 1000);
     }
   };
