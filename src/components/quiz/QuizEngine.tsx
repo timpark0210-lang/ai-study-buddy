@@ -111,9 +111,11 @@ export default function QuizEngine({ session, onFinish }: QuizEngineProps) {
                 }`}> 
                   {String.fromCharCode(65 + idx)} 
                 </span> 
-                <ReactMarkdown className="flex-1" remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}> 
-                  {opt} 
-                </ReactMarkdown> 
+                <div className="flex-1"> 
+                  <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}> 
+                    {opt} 
+                  </ReactMarkdown> 
+                </div> 
               </div> 
             </button> 
           ); 
