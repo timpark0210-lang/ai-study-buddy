@@ -71,7 +71,6 @@ export default function MaterialUploader({ onUploadComplete }: MaterialUploaderP
       // 기존 업로드 로직과 타임아웃 경합
       const uploadPromise = upload(`materials/${Date.now()}-${safeFilename}`, file, {
         access: 'public',
-        multipart: true, // 대용량 파일(4.5MB 이상) 안전 처리를 위한 강제 multipart 지정
         handleUploadUrl: '/api/upload', // 원복 (이전 절대경로 설정은 옵셔널)
         onUploadProgress: (progressEvent) => {
           const percentage = Math.round(progressEvent.percentage);

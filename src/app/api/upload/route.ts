@@ -20,7 +20,6 @@ export async function POST(request: Request): Promise<NextResponse> {
       onBeforeGenerateToken: async (pathname) => {
         // 🔥 Phase 3: Added support for PDF, Image and DOCX
         return {
-          /* MIME Type Mismatch 의심으로 인한 임시 주석 처리
           allowedContentTypes: [
             'application/pdf', 
             'image/jpeg', 
@@ -28,7 +27,6 @@ export async function POST(request: Request): Promise<NextResponse> {
             'image/webp',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
           ],
-          */
           // 용량 초과로 인한 97% 무한 로딩(가짜 CORS) 방지를 위해 최대 용량 20MB 명확히 설정
           maximumSizeInBytes: 20 * 1024 * 1024,
           tokenPayload: JSON.stringify({
