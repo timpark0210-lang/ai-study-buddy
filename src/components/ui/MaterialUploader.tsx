@@ -47,16 +47,9 @@ export default function MaterialUploader({ onUploadComplete }: MaterialUploaderP
       return;
     }
 
-    const uploadTimeout = 45000; // 45 seconds tolerance for large files
-
     try {
       setIsUploading(true);
       setProgress(5);
-
-      // 타임아웃 프로미스 생성
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Upload timed out. Please check your network connection and try again.')), uploadTimeout);
-      });
 
       // 특수문자나 공백이 URL 인코딩 되면서 Token Signature Mismatch (403/가짜 CORS) 발생 방지
       const safeFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
@@ -68,17 +61,21 @@ export default function MaterialUploader({ onUploadComplete }: MaterialUploaderP
         throw new Error('File object is empty or corrupted.');
       }
 
-      // 기존 업로드 로직과 타임아웃 경합
-      const uploadPromise = upload(`materials/${Date.now()}-${safeFilename}`, file, {
+      // Vercel SDK 백그라운드 멀티파트 업로드 (타임아웃은 SDK 자체 및 브라우저망 설정에 위임)
+      const newBlob = await upload(`materials/${Date.now()}-${safeFilename}`, file, {
         access: 'public',
-        handleUploadUrl: '/api/upload', // 원복 (이전 절대경로 설정은 옵셔널)
+        handleUploadUrl: '/api/upload',
         onUploadProgress: (progressEvent) => {
           const percentage = Math.round(progressEvent.percentage);
-          setProgress(percentage);
+          setProgress((prev) => {
+            // 반응성을 줄이기 위해 이전 대비 5% 이상 진행되었거나 완료되었을 때만 렌더링
+            if (percentage - prev >= 5 || percentage === 100) {
+              return percentage;
+            }
+            return prev;
+          });
         }
-      });
-
-      const newBlob = (await Promise.race([uploadPromise, timeoutPromise])) as any;
+      }) as any;
       
       setProgress(100);
 
