@@ -61,21 +61,48 @@ export default function MaterialUploader({ onUploadComplete }: MaterialUploaderP
         throw new Error('File object is empty or corrupted.');
       }
 
-      // Vercel SDK 백그라운드 멀티파트 업로드 (타임아웃은 SDK 자체 및 브라우저망 설정에 위임)
-      const newBlob = await upload(`materials/${Date.now()}-${safeFilename}`, file, {
-        access: 'public',
-        handleUploadUrl: '/api/upload',
-        onUploadProgress: (progressEvent) => {
-          const percentage = Math.round(progressEvent.percentage);
-          setProgress((prev) => {
-            // 반응성을 줄이기 위해 이전 대비 5% 이상 진행되었거나 완료되었을 때만 렌더링
-            if (percentage - prev >= 5 || percentage === 100) {
-              return percentage;
+      // 100% 완료 후 15초 동안 서버 완료 웹훅 응답이 오지 않으면 예외를 던지는 래퍼 프로미스
+      let cancelUploadDueToWebhookTimeout = () => {};
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        cancelUploadDueToWebhookTimeout = () => {
+          reject(new Error('서버 완료 확인(웹훅) 응답 대기 시간이 초과되었습니다. Vercel 대시보드의 환경 변수(BLOB_READ_WRITE_TOKEN) 설정이 올바른지 확인해 주세요.'));
+        };
+      });
+
+      let webhookTimeoutTimer: NodeJS.Timeout | null = null;
+
+      const uploadWithProgress = async () => {
+        return upload(`materials/${Date.now()}-${safeFilename}`, file, {
+          access: 'public',
+          handleUploadUrl: '/api/upload',
+          onUploadProgress: (progressEvent) => {
+            const percentage = Math.round(progressEvent.percentage);
+            setProgress((prev) => {
+              if (percentage - prev >= 5 || percentage === 100) {
+                return percentage;
+              }
+              return prev;
+            });
+            
+            if (percentage === 100) {
+              console.log('[MaterialUploader] File upload reaches 100%. Waiting for server webhook response...');
+              webhookTimeoutTimer = setTimeout(() => {
+                cancelUploadDueToWebhookTimeout();
+              }, 15000); // 15초 대기 타이머
             }
-            return prev;
-          });
-        }
-      }) as any;
+          }
+        });
+      };
+
+      // Vercel SDK 백그라운드 멀티파트 업로드 및 타임아웃 레이스 실행
+      const newBlob = await Promise.race([
+        uploadWithProgress(),
+        timeoutPromise
+      ]) as any;
+
+      if (webhookTimeoutTimer) {
+        clearTimeout(webhookTimeoutTimer);
+      }
       
       setProgress(100);
 

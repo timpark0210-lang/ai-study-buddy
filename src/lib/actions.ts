@@ -13,15 +13,39 @@ export async function generateStudyGuideAction(prompt: string, files: any[], loc
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     
+    // Fetch file from URL and convert to Base64 helper
+    const fileParts = await Promise.all(
+      files.map(async (f) => {
+        if (f.url.startsWith('data:')) {
+          return {
+            inlineData: {
+              data: f.url.split(',')[1],
+              mimeType: f.mimeType,
+            },
+          };
+        }
+
+        console.log(`[AI Tutor Action] Fetching and encoding file: ${f.name} (${f.url})`);
+        const response = await fetch(f.url);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch file from storage: ${response.statusText}`);
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        const base64Data = Buffer.from(arrayBuffer).toString('base64');
+        
+        return {
+          inlineData: {
+            data: base64Data,
+            mimeType: f.mimeType,
+          },
+        };
+      })
+    );
+
     // Preparation for multimodal input (supporting browser-based URLs and Blobs)
     const parts = [
       { text: prompt },
-      ...files.map(f => ({
-        inlineData: {
-          data: f.url.split(',')[1] || f.url, 
-          mimeType: f.mimeType
-        }
-      }))
+      ...fileParts
     ];
 
     const result = await model.generateContent({
