@@ -140,7 +140,7 @@ export default function StudyRoom({ session, onStartQuiz }: StudyRoomProps) {
 
       {/* Main Content Area */}
       <div className="flex-1 pb-20 relative"> 
-        <div ref={contentRef} id="print-area" className="glass-card p-10 md:p-16 min-h-full bg-[#1C1C1F] border-zinc-800/50 shadow-[0_0_50px_rgba(0,0,0,0.5)]" > 
+        <div ref={contentRef} id="print-area" className="rounded-3xl p-10 md:p-16 min-h-full bg-white border border-zinc-200 shadow-[0_0_50px_rgba(0,0,0,0.15)]" > 
           
           {/* Print Only Header */}
           <div className="hidden print:block mb-8">
@@ -148,7 +148,7 @@ export default function StudyRoom({ session, onStartQuiz }: StudyRoomProps) {
             <p className="text-sm text-slate-600 font-bold">Study Buddy Guide — Source: {session.fileName}</p>
           </div>
 
-          <div className="prose-premium selection:bg-indigo-500/30 selection:text-white"> 
+          <div className="prose-light selection:bg-indigo-500/20 selection:text-indigo-900"> 
             
             {/* For printing: print the entire document instead of active tab */}
             <div className="print:hidden">
@@ -157,27 +157,27 @@ export default function StudyRoom({ session, onStartQuiz }: StudyRoomProps) {
                 rehypePlugins={[rehypeKatex]}
                 components={{
                   table: ({ node, ...props }) => (
-                    <div className="overflow-x-auto my-6 rounded-2xl border border-indigo-500/20 bg-indigo-950/20 backdrop-blur-sm">
-                      <table className="min-w-full divide-y divide-indigo-500/20" {...props} />
+                    <div className="overflow-x-auto my-6 rounded-2xl border border-indigo-200 bg-indigo-50/50">
+                      <table className="min-w-full divide-y divide-indigo-200" {...props} />
                     </div>
                   ),
                   th: ({ node, ...props }) => (
-                    <th className="px-6 py-4 text-left text-xs font-bold text-indigo-300 uppercase tracking-wider bg-indigo-500/10" {...props} />
+                    <th className="px-6 py-4 text-left text-xs font-bold text-indigo-700 uppercase tracking-wider bg-indigo-100/60" {...props} />
                   ),
                   td: ({ node, ...props }) => (
-                    <td className="px-6 py-4 text-sm text-slate-300 border-t border-indigo-500/10 whitespace-pre-line" {...props} />
+                    <td className="px-6 py-4 text-sm text-zinc-700 border-t border-indigo-100 whitespace-pre-line" {...props} />
                   ),
                   strong: ({ node, ...props }) => (
-                    <strong className="text-indigo-300 font-extrabold bg-indigo-500/10 px-1.5 py-0.5 rounded border border-indigo-500/20" {...props} />
+                    <strong className="text-indigo-700 font-extrabold bg-indigo-100 px-1.5 py-0.5 rounded" {...props} />
                   ),
                   blockquote: ({ node, ...props }) => (
-                    <blockquote className="border-l-4 border-amber-500 bg-amber-500/5 px-6 py-4 my-6 rounded-r-2xl text-slate-300 italic shadow-lg shadow-amber-500/5" {...props} />
+                    <blockquote className="border-l-4 border-amber-400 bg-amber-50 px-6 py-4 my-6 rounded-r-2xl text-zinc-700 italic" {...props} />
                   ),
                   h2: ({ node, ...props }) => (
-                    <h2 className="text-2xl font-black text-white tracking-tight mt-10 mb-6 flex items-center gap-3 border-l-4 border-indigo-500 pl-4" {...props} />
+                    <h2 className="text-2xl font-black text-zinc-900 tracking-tight mt-10 mb-6 flex items-center gap-3 border-l-4 border-indigo-500 pl-4" {...props} />
                   ),
                   h3: ({ node, ...props }) => (
-                    <h3 className="text-xl font-bold text-indigo-400 tracking-tight mt-8 mb-4" {...props} />
+                    <h3 className="text-xl font-bold text-indigo-600 tracking-tight mt-8 mb-4" {...props} />
                   )
                 }}
               > 
