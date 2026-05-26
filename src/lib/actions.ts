@@ -93,3 +93,47 @@ export async function generateQuizAction(content: string, count: number = 5) {
         return { success: false, error: "Quiz failure" };
     }
 }
+
+export async function chatAction(message: string, contextMarkdown: string, chatHistory: any[]) {
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        const systemPrompt = `You are "Kia Ora AI Tutor", a smart and friendly AI teaching assistant.
+You are helping a student who is currently reviewing a study guide.
+
+Here is the context (The study guide the student is currently reading):
+---
+${contextMarkdown}
+---
+
+Your role:
+1. Answer the student's questions accurately using the provided context.
+2. If the answer is not in the context, use your own general knowledge to help the student.
+3. Keep your answers concise, encouraging, and easy to understand.
+4. Reply in the same language the student uses to ask the question.
+
+Remember: Be a helpful and encouraging tutor!`;
+
+        // Format history for Gemini
+        const history = chatHistory.map(msg => ({
+            role: msg.role === 'user' ? 'user' : 'model',
+            parts: [{ text: msg.text }]
+        }));
+
+        const chat = model.startChat({
+            history: [
+                { role: 'user', parts: [{ text: systemPrompt }] },
+                { role: 'model', parts: [{ text: 'Understood. I am ready to help the student based on the study guide.' }] },
+                ...history
+            ]
+        });
+
+        const result = await chat.sendMessage(message);
+        const response = await result.response;
+        const text = response.text();
+
+        return { success: true, text };
+    } catch (error) {
+        console.error("Chat Error:", error);
+        return { success: false, error: "Failed to get chat response" };
+    }
+}

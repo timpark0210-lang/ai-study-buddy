@@ -5,9 +5,7 @@ import { usePathname } from "next/navigation";
 
 const navItems = [
     { href: "/", label: "Dashboard", icon: "dashboard" },
-    { href: "/tutor", label: "AI Tutor", icon: "smart_toy" },
-    { href: "/quiz", label: "Quiz Engine", icon: "quiz" },
-    { href: "/library", label: "Study Room", icon: "menu_book" },
+    { href: "/library", label: "Library", icon: "folder_open" },
 ];
 
 export default function Sidebar() {
