@@ -5,7 +5,7 @@ export class VisionAnalyst extends BaseAgent {
     constructor() {
         super(
             "VisionAnalyst",
-            process.env.GEMINI_MODEL || "gemini-2.0-flash",
+            process.env.GEMINI_MODEL || "gemini-3.5-flash",
             `You are a Vision & Document Analyst. 
             Extract text, formulas (in LaTeX), and structure from images or fragments. 
             Identify key learning concepts and student's current progress.`

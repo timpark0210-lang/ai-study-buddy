@@ -10,7 +10,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
  */
 export async function generateStudyGuideAction(prompt: string, files: any[], locale: string) {
   try {
-    const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || "gemini-3.5-flash" });
     
     // Fetch file from URL and convert to Base64 helper
     const fileParts = await Promise.all(
@@ -71,7 +71,7 @@ export async function generateStudyGuideAction(prompt: string, files: any[], loc
 
 export async function generateQuizAction(content: string, count: number = 5) {
     try {
-        const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || "gemini-2.0-flash" });
+        const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || "gemini-3.5-flash" });
         const prompt = `Based on the following study guide, generate ${count} multiple-choice questions in JSON format. 
         Format: Array<{ question: string, options: string[], answer: number, explanation: string }>
         
@@ -96,7 +96,7 @@ export async function generateQuizAction(content: string, count: number = 5) {
 
 export async function chatAction(message: string, contextMarkdown: string, chatHistory: any[]) {
     try {
-        const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || "gemini-2.0-flash" });
+        const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || "gemini-3.5-flash" });
         const systemPrompt = `You are "Kia Ora AI Tutor", a smart and friendly AI teaching assistant.
 You are helping a student who is currently reviewing a study guide.
 
