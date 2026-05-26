@@ -2,6 +2,7 @@
 import React, { useRef, useState } from 'react'; 
 import ReactMarkdown from 'react-markdown'; 
 import remarkMath from 'remark-math'; 
+import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex'; 
 import 'katex/dist/katex.min.css'; 
 import { StudySession } from '@/store/useLibraryStore'; 
@@ -153,7 +154,7 @@ export default function StudyRoom({ session, onStartQuiz }: StudyRoomProps) {
             {/* For printing: print the entire document instead of active tab */}
             <div className="print:hidden">
               <ReactMarkdown 
-                remarkPlugins={[remarkMath]} 
+                remarkPlugins={[remarkMath, remarkGfm]} 
                 rehypePlugins={[rehypeKatex]}
                 components={{
                   table: ({ node, ...props }) => (
@@ -188,7 +189,7 @@ export default function StudyRoom({ session, onStartQuiz }: StudyRoomProps) {
             {/* Print Area: Always shows FULL content */}
             <div className="hidden print:block">
               <ReactMarkdown 
-                remarkPlugins={[remarkMath]} 
+                remarkPlugins={[remarkMath, remarkGfm]} 
                 rehypePlugins={[rehypeKatex]}
               > 
                 {session.guideMarkdown} 

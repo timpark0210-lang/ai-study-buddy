@@ -36,16 +36,18 @@ export default function TutorPage() {
         }, 30000);
 
         try {
-            const structuredPrompt = `Generate a highly detailed and structured study guide based on the provided material in Korean.
+            const structuredPrompt = `Generate a highly detailed and structured study guide based on the provided material.
+CRITICAL RULE: The entire guide MUST be written in New Zealand English (NZ English). Do NOT write any Korean (한글) or any other languages under any circumstances. Ensure NZ English style spelling is used (e.g., "colour", "summarise", "programme"), and the currency unit is always New Zealand Dollars $(NZD) if any financial references are made.
+
 Please output the guide in valid Markdown with the following specific structure:
 - Begin with a main title using '# [Subject Name]'.
 - Section 1: '## 📌 Overview' — A clear, 3-4 sentence summary of the study material.
-- Section 2: '## 🔑 Key Terms' — A definitions table using markdown table format ('| Term | Definition |'). List key terms from the document.
+- Section 2: '## 🔑 Key Terms' — A definitions table using markdown table format ('| Term | Definition |'). List key terms from the document. Make sure the table syntax is perfectly valid markdown.
 - Section 3: '## 📖 Core Concepts' — Deep-dive analysis of the main concepts. Break down into subheadings '### Concept Name' and explain clearly with examples.
-- Section 4: '## 📊 Quick Reference' — A quick summary table or key formulas/rules.
+- Section 4: '## 📊 Quick Reference' — A quick summary table or key formulas/rules using valid markdown table format.
 - Section 5: '## ✅ Key Takeaways' — A bulleted list of crucial points the student must remember.
 
-Ensure NZ English style spelling is preferred for technical English terms, and the currency unit is $(NZD) if financial references are made. The overall guide must be in Korean.`;
+Double check that all markdown tables have proper alignment headers, row separators (|---|---|), and no broken pipe characters, to prevent layout breaking.`;
 
             // Step 1: Generate AI Study Guide
             const guideResult = await generateStudyGuideAction(
