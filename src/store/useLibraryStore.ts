@@ -21,6 +21,7 @@ interface AppState {
   setCurrentSessionId: (id: string | null) => void;
   addStudySession: (session: StudySession) => void;
   updateStudySession: (id: string, updates: Partial<StudySession>) => void;
+  deleteStudySession: (id: string) => void;
   // Legacy aliases for backward compatibility during Phase 3 transition
   addMaterial: (session: any) => void;
 }
@@ -40,6 +41,10 @@ export const useLibraryStore = create<AppState>()(
         studySessions: state.studySessions.map((s) => 
           s.id === id ? { ...s, ...updates } : s
         )
+      })),
+      deleteStudySession: (id) => set((state) => ({
+        studySessions: state.studySessions.filter((s) => s.id !== id),
+        currentSessionId: state.currentSessionId === id ? null : state.currentSessionId
       })),
       // Map legacy addMaterial to addStudySession format
       addMaterial: (material) => set((state) => {

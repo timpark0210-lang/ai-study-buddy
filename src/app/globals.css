@@ -55,27 +55,27 @@
   }
 
   .dark {
-    /* Luminous Scholar (Deep Navy Surface) */
-    --background: #0b1326;
-    --foreground: #f6f7f8;
+    /* Warm Charcoal — High contrast, modern SaaS */
+    --background: #18181B;
+    --foreground: #f4f4f5;
 
     --primary: #6366f1;
     --primary-foreground: #ffffff;
 
-    --secondary: #1e293b;
-    --secondary-foreground: #f8fafc;
+    --secondary: #27272A;
+    --secondary-foreground: #f4f4f5;
 
-    --muted: #0f172a;
-    --muted-foreground: #94a3b8;
+    --muted: #1C1C1F;
+    --muted-foreground: #a1a1aa;
 
     --accent: #DB2777;
     --accent-foreground: #ffffff;
 
-    --card: #0b1326;
-    --card-foreground: #f6f7f8;
+    --card: #1C1C1F;
+    --card-foreground: #f4f4f5;
 
-    --border: #1e293b;
-    --input: #1e293b;
+    --border: #2E2E33;
+    --input: #27272A;
     --ring: #6366f1;
   }
 }
@@ -95,7 +95,7 @@
 
 @layer components {
   .glass-card {
-    @apply backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl shadow-2xl transition-all duration-300;
+    @apply backdrop-blur-xl bg-white/[0.08] border border-white/[0.12] rounded-3xl shadow-2xl transition-all duration-300;
   }
   
   .glass-morphism {

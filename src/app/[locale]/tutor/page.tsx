@@ -94,7 +94,7 @@ Ensure NZ English style spelling is preferred for technical English terms, and t
     };
 
     return (
-        <main className="w-full min-h-screen bg-slate-950 text-slate-200 overflow-x-hidden">
+        <main className="w-full min-h-screen bg-zinc-900 text-zinc-200 overflow-x-hidden">
             <div className="max-w-7xl mx-auto px-6 py-8">
                 
                 {/* Header Section */}

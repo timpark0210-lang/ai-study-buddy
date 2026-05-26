@@ -140,7 +140,7 @@ export default function StudyRoom({ session, onStartQuiz }: StudyRoomProps) {
 
       {/* Main Content Area */}
       <div className="flex-1 pb-20 relative"> 
-        <div ref={contentRef} id="print-area" className="glass-card p-10 md:p-16 min-h-full bg-slate-950 border-slate-800/50 shadow-[0_0_50px_rgba(0,0,0,0.5)]" > 
+        <div ref={contentRef} id="print-area" className="glass-card p-10 md:p-16 min-h-full bg-[#1C1C1F] border-zinc-800/50 shadow-[0_0_50px_rgba(0,0,0,0.5)]" > 
           
           {/* Print Only Header */}
           <div className="hidden print:block mb-8">
@@ -199,8 +199,8 @@ export default function StudyRoom({ session, onStartQuiz }: StudyRoomProps) {
         </div> 
 
         {/* Ambient Background Glows */}
-        <div className="fixed top-1/4 right-0 w-[500px] h-[500px] bg-indigo-600 rounded-full mix-blend-screen filter blur-[120px] opacity-[0.03] animate-pulse pointer-events-none pdf-exclude"></div> 
-        <div className="fixed bottom-1/4 left-0 w-[500px] h-[500px] bg-purple-600 rounded-full mix-blend-screen filter blur-[120px] opacity-[0.03] animate-pulse pointer-events-none animation-delay-3000 pdf-exclude"></div> 
+        <div className="fixed top-1/4 right-0 w-[500px] h-[500px] bg-indigo-600 rounded-full mix-blend-screen filter blur-[120px] opacity-[0.06] animate-pulse pointer-events-none pdf-exclude"></div> 
+        <div className="fixed bottom-1/4 left-0 w-[500px] h-[500px] bg-purple-600 rounded-full mix-blend-screen filter blur-[120px] opacity-[0.06] animate-pulse pointer-events-none animation-delay-3000 pdf-exclude"></div> 
       </div> 
     </div> 
   ); 

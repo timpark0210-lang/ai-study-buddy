@@ -7,7 +7,14 @@ interface MyLibraryViewProps {
 } 
 
 export default function MyLibraryView({ onSessionSelect }: MyLibraryViewProps) { 
-  const { studySessions } = useLibraryStore(); 
+  const { studySessions, deleteStudySession } = useLibraryStore(); 
+
+  const handleDelete = (e: React.MouseEvent, sessionId: string, fileName: string) => {
+    e.stopPropagation(); // Prevent card click from firing
+    if (confirm(`"${fileName}" 학습 기록을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) {
+      deleteStudySession(sessionId);
+    }
+  };
 
   if (!studySessions || studySessions.length === 0) { 
     return ( 
@@ -19,7 +26,7 @@ export default function MyLibraryView({ onSessionSelect }: MyLibraryViewProps) {
         <p className="text-slate-500 max-w-sm mb-10 font-medium font-sans">Upload your study materials in the dashboard and the AI Tutor will curate them here.</p>
         <button 
            onClick={() => window.location.reload()} 
-           className="px-6 py-3 bg-indigo-600/10 text-indigo-400 border border-indigo-500/20 rounded-xl font-bold hover:bg-indigo-600 hover:text-white transition-all"
+           className="px-6 py-3 bg-indigo-600/10 text-indigo-400 border border-indigo-500/20 rounded-xl font-bold hover:bg-indigo-600 hover:text-white transition-all cursor-pointer"
         >
            Refresh Library
         </button>
@@ -48,13 +55,22 @@ export default function MyLibraryView({ onSessionSelect }: MyLibraryViewProps) {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"> 
               {sessions.map((session) => ( 
-                <button 
+                <div 
                   key={session.id} 
                   onClick={() => onSessionSelect(session.id)} 
-                  className="glass-card p-6 flex flex-col gap-6 cursor-pointer text-left hover:bg-slate-800/80 hover:border-indigo-500/30 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] transition-all group group relative" 
+                  className="glass-card p-6 flex flex-col gap-6 cursor-pointer text-left hover:bg-slate-800/80 hover:border-indigo-500/30 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] transition-all group relative" 
                 > 
+                  {/* Delete Button */}
+                  <button
+                    onClick={(e) => handleDelete(e, session.id, session.fileName)}
+                    className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-900/80 border border-slate-700 flex items-center justify-center text-slate-500 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/30 transition-all opacity-0 group-hover:opacity-100 z-10 cursor-pointer"
+                    title="Delete this session"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">delete</span>
+                  </button>
+
                   <div className="flex justify-between items-start"> 
-                    <div className="w-12 h-12 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center group-hover:scale-110 group-hover:bg-indigo-600/10 transition-all duration-500"> 
+                    <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-slate-800 flex items-center justify-center group-hover:scale-110 group-hover:bg-indigo-600/10 transition-all duration-500"> 
                       <span className="material-symbols-outlined text-indigo-400 text-2xl group-hover:text-indigo-300"> 
                         {session.fileType === 'pdf' ? 'picture_as_pdf' : session.fileType === 'word' ? 'description' : 'image'} 
                       </span> 
@@ -82,7 +98,7 @@ export default function MyLibraryView({ onSessionSelect }: MyLibraryViewProps) {
                       Resume Session <span className="material-symbols-outlined text-[16px] animate-bounce-x">arrow_forward</span> 
                     </span> 
                   </div> 
-                </button> 
+                </div> 
               ))} 
             </div> 
           </section> 
