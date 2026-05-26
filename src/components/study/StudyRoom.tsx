@@ -168,7 +168,7 @@ export default function StudyRoom({ session, onStartQuiz }: StudyRoomProps) {
                     <td className="px-6 py-4 text-sm text-zinc-700 border-t border-indigo-100 whitespace-pre-line" {...props} />
                   ),
                   strong: ({ node, ...props }) => (
-                    <strong className="text-indigo-700 font-extrabold bg-indigo-100 px-1.5 py-0.5 rounded" {...props} />
+                    <strong className="text-zinc-900 font-bold" {...props} />
                   ),
                   blockquote: ({ node, ...props }) => (
                     <blockquote className="border-l-4 border-amber-400 bg-amber-50 px-6 py-4 my-6 rounded-r-2xl text-zinc-700 italic" {...props} />
