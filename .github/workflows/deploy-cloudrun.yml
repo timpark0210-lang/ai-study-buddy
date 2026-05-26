@@ -54,6 +54,7 @@ jobs:
             GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
             GCP_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }}
             GCS_BUCKET_NAME=${{ secrets.GCS_BUCKET_NAME }}
+            GEMINI_MODEL=gemini-2.0-flash
           flags: '--allow-unauthenticated'
 
       - name: Show Output
