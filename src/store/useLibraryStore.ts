@@ -8,6 +8,7 @@ export interface StudySession {
     blobUrl: string;
     subject: string;
     guideMarkdown: string;
+    blueprint?: string;
     quizData: any;
     quizScore: number | null;
     createdAt: string;

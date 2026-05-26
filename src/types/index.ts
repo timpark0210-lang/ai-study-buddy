@@ -61,6 +61,7 @@ export interface StudySession {
   blobUrl: string;       // Vercel Blob 원본 링크
   subject: string;       // AI 자동 추론 과목명
   guideMarkdown: string; // 생성된 핵심 개념 요약본
+  blueprint?: string;    // AI의 교육 기획안 (CoT)
   quizData: QuizQuestion[] | null; // 생성된 퀴즈 객체
   quizScore: number | null; 
   createdAt: string;

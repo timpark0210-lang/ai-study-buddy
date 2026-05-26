@@ -138,6 +138,28 @@ export default function StudyRoom({ session, onStartQuiz }: StudyRoomProps) {
           Quick Ref
         </button>
       </div>
+      
+      {/* AI Pedagogical Blueprint (Accordion) */}
+      {session.blueprint && (
+        <div className="mb-6 max-w-4xl mx-auto pdf-exclude">
+          <details className="group bg-slate-900 border border-indigo-500/30 rounded-2xl overflow-hidden [&_summary::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer items-center justify-between gap-1.5 p-4 text-slate-200">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-indigo-400">psychology</span>
+                <h2 className="font-bold text-sm tracking-wide">AI&apos;s Pedagogical Strategy</h2>
+              </div>
+              <span className="shrink-0 transition duration-300 group-open:-rotate-180 text-indigo-400">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </span>
+            </summary>
+            <div className="px-5 pb-5 text-sm text-slate-400 border-t border-slate-800/50 pt-4 leading-relaxed whitespace-pre-wrap">
+              {session.blueprint}
+            </div>
+          </details>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <div className="flex-1 pb-20 relative"> 

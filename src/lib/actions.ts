@@ -50,7 +50,7 @@ export async function generateStudyGuideAction(prompt: string, files: any[], loc
     const result = await model.generateContent({
        contents: [{ role: 'user', parts }],
        generationConfig: {
-         maxOutputTokens: 4000,
+         maxOutputTokens: 8000,
          temperature: 0.7,
        }
     });
@@ -58,10 +58,23 @@ export async function generateStudyGuideAction(prompt: string, files: any[], loc
     const response = await result.response;
     const text = response.text();
 
+    let blueprint = '';
+    let mainContent = text;
+    
+    const blueprintMatch = text.match(/<pedagogical_blueprint>([\s\S]*?)<\/pedagogical_blueprint>/);
+    if (blueprintMatch) {
+        blueprint = blueprintMatch[1].trim();
+        mainContent = text.replace(/<pedagogical_blueprint>[\s\S]*?<\/pedagogical_blueprint>/, '').trim();
+    }
+
+    const subjectMatch = mainContent.split('\n').find(line => line.startsWith('#'));
+    const subject = subjectMatch ? subjectMatch.replace('#', '').trim() : 'New Material';
+
     return { 
         success: true, 
-        content: text,
-        subject: text.split('\n')[0].replace('#', '').trim() 
+        content: mainContent,
+        blueprint: blueprint,
+        subject: subject 
     };
   } catch (error) {
     console.error("AI Error:", error);
