@@ -1,51 +1,60 @@
-import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
+import { Storage } from '@google-cloud/storage';
 import { NextResponse } from 'next/server';
 
+const storage = new Storage({
+  projectId: process.env.GCP_PROJECT_ID,
+});
+
+const BUCKET_NAME = process.env.GCS_BUCKET_NAME || 'ai-study-buddy-materials';
+
 export async function POST(request: Request): Promise<NextResponse> {
-  // 1. 보안 체크: 토큰이 없는 경우 타임아웃 방지를 위해 즉시 에러 반환
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    console.error('[Upload API] Critical: BLOB_READ_WRITE_TOKEN is missing in environment variables.');
+  if (!process.env.GCS_BUCKET_NAME || !process.env.GCP_PROJECT_ID) {
+    console.error('[Upload API] Critical: GCP_PROJECT_ID or GCS_BUCKET_NAME missing in environment variables.');
     return NextResponse.json(
-      { error: 'Server configuration error: Missing storage token. Please contact the administrator.' },
+      { error: 'Server configuration error: Missing GCP settings. Please contact the administrator.' },
       { status: 500 }
     );
   }
 
-  const body = (await request.json()) as HandleUploadBody;
-
   try {
-    const jsonResponse = await handleUpload({
-      body,
-      request,
-      onBeforeGenerateToken: async (pathname) => {
-        // 🔥 Phase 3: Added support for PDF, Image and DOCX
-        return {
-          allowedContentTypes: [
-            'application/pdf', 
-            'image/jpeg', 
-            'image/png', 
-            'image/webp',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-          ],
-          // 용량 초과로 인한 97% 무한 로딩(가짜 CORS) 방지를 위해 최대 용량 20MB 명확히 설정
-          maximumSizeInBytes: 20 * 1024 * 1024,
-          tokenPayload: JSON.stringify({
-            userId: 'user_dev_asher', 
-          }),
-        };
-      },
-      onUploadCompleted: async ({ blob, tokenPayload }) => {
-        // This hook is called on the server when a file is successfully uploaded
-        console.log('[Upload API] Blob upload completed successfully:', blob.url);
-      },
+    const { filename, contentType } = await request.json();
+
+    if (!filename || !contentType) {
+      return NextResponse.json({ error: 'Filename and contentType are required.' }, { status: 400 });
+    }
+
+    const allowedContentTypes = [
+      'application/pdf', 
+      'image/jpeg', 
+      'image/png', 
+      'image/webp',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+
+    if (!allowedContentTypes.includes(contentType)) {
+      return NextResponse.json({ error: 'Unsupported file type. Only PDF, JPG, PNG, WEBP, and DOCX are supported.' }, { status: 400 });
+    }
+
+    const safeFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const finalFilename = `materials/${Date.now()}-${safeFilename}`;
+    const file = storage.bucket(BUCKET_NAME).file(finalFilename);
+
+    // Generate V4 signed URL for uploading
+    const [uploadUrl] = await file.getSignedUrl({
+      version: 'v4',
+      action: 'write',
+      expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+      contentType: contentType,
     });
 
-    return NextResponse.json(jsonResponse);
+    const publicUrl = `https://storage.googleapis.com/${BUCKET_NAME}/${finalFilename}`;
+
+    return NextResponse.json({ uploadUrl, publicUrl, filename: finalFilename });
   } catch (error) {
-    console.error('[Upload API] Error during handleUpload:', error);
+    console.error('[Upload API] Error generating Signed URL:', error);
     return NextResponse.json(
       { error: (error as Error).message },
-      { status: 400 }
+      { status: 500 }
     );
   }
 }

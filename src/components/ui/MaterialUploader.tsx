@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useCallback, useState } from 'react';
-import { upload } from '@vercel/blob/client';
 import { useLibraryStore } from '@/store/useLibraryStore'; // Updated to match likely real store path
 
 // Maximum file size: 20MB
@@ -61,48 +60,48 @@ export default function MaterialUploader({ onUploadComplete }: MaterialUploaderP
         throw new Error('File object is empty or corrupted.');
       }
 
-      // 100% 완료 후 15초 동안 서버 완료 웹훅 응답이 오지 않으면 예외를 던지는 래퍼 프로미스
-      let cancelUploadDueToWebhookTimeout = () => {};
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        cancelUploadDueToWebhookTimeout = () => {
-          reject(new Error('서버 완료 확인(웹훅) 응답 대기 시간이 초과되었습니다. Vercel 대시보드의 환경 변수(BLOB_READ_WRITE_TOKEN) 설정이 올바른지 확인해 주세요.'));
-        };
+      // 1. 서버에 Signed URL 요청
+      setProgress(10);
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: safeFilename, contentType: file.type }),
       });
 
-      let webhookTimeoutTimer: NodeJS.Timeout | null = null;
-
-      const uploadWithProgress = async () => {
-        return upload(`materials/${Date.now()}-${safeFilename}`, file, {
-          access: 'public',
-          handleUploadUrl: '/api/upload',
-          onUploadProgress: (progressEvent) => {
-            const percentage = Math.round(progressEvent.percentage);
-            setProgress((prev) => {
-              if (percentage - prev >= 5 || percentage === 100) {
-                return percentage;
-              }
-              return prev;
-            });
-            
-            if (percentage === 100) {
-              console.log('[MaterialUploader] File upload reaches 100%. Waiting for server webhook response...');
-              webhookTimeoutTimer = setTimeout(() => {
-                cancelUploadDueToWebhookTimeout();
-              }, 15000); // 15초 대기 타이머
-            }
-          }
-        });
-      };
-
-      // Vercel SDK 백그라운드 멀티파트 업로드 및 타임아웃 레이스 실행
-      const newBlob = await Promise.race([
-        uploadWithProgress(),
-        timeoutPromise
-      ]) as any;
-
-      if (webhookTimeoutTimer) {
-        clearTimeout(webhookTimeoutTimer);
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Failed to get upload URL');
       }
+
+      const { uploadUrl, publicUrl, filename: finalFilename } = await res.json();
+
+      // 2. XMLHttpRequest를 사용한 GCS 직접 업로드 (진행률 표시 지원)
+      await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('PUT', uploadUrl, true);
+        xhr.setRequestHeader('Content-Type', file.type);
+        
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            // 서버 응답 대기 시간을 고려하여 최대 99%까지만 진행
+            const percentage = Math.round((e.loaded / e.total) * 99);
+            setProgress((prev) => percentage > prev ? percentage : prev);
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve(true);
+          } else {
+            reject(new Error(`GCS upload failed with status ${xhr.status}`));
+          }
+        };
+
+        xhr.onerror = () => reject(new Error('Network error during GCS upload'));
+        xhr.send(file);
+      });
+      
+      const newBlob = { url: publicUrl };
       
       setProgress(100);
 
@@ -122,15 +121,12 @@ export default function MaterialUploader({ onUploadComplete }: MaterialUploaderP
       
     } catch (err: any) {
       console.error('[MaterialUploader] Error:', err);
-      
-      // [임시 디버깅용 핫픽스] 에러 사유를 브라우저 팝업으로 강제로 띄웁니다.
-      alert(`[Vercel Blob 에러 사유]: ${err.message}`);
 
       // 에러 메시지 한글화 및 상세화
       let userFriendlyMsg = err.message;
       if (err.message.includes('400')) userFriendlyMsg = '업로드 요청이 거부되었습니다. 파일 형식을 확인해주세요.';
-      if (err.message.includes('500')) userFriendlyMsg = '서버 설정 오류입니다. 관리자(대표님)에게 문의해주세요.';
-      if (err.message.includes('timed out')) userFriendlyMsg = '업로드 시간이 초과되었습니다. 네트워크 상태를 확인하거나 잠시 후 다시 시도해주세요.';
+      if (err.message.includes('500') || err.message.includes('signBlob')) userFriendlyMsg = '서버 스토리지 권한 오류입니다. GCP IAM 설정을 확인해주세요.';
+      if (err.message.includes('timed out') || err.message.includes('Network error')) userFriendlyMsg = '업로드 시간이 초과되었습니다. 네트워크 상태를 확인하거나 잠시 후 다시 시도해주세요.';
       
       setErrorMsg(`업로드 실패: ${userFriendlyMsg}`);
     } finally {

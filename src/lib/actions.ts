@@ -1,6 +1,5 @@
 'use server';
 
-import { put } from '@vercel/blob';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
@@ -51,7 +50,7 @@ export async function generateStudyGuideAction(prompt: string, files: any[], loc
     const result = await model.generateContent({
        contents: [{ role: 'user', parts }],
        generationConfig: {
-         maxOutputTokens: 2000,
+         maxOutputTokens: 4000,
          temperature: 0.7,
        }
     });

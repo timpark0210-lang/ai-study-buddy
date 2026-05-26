@@ -28,10 +28,28 @@ export default function TutorPage() {
      */
     const handleUploadComplete = async (fileUrl: string, fileName: string, mimeType: string) => {
         setIsAnalyzing(true);
+        
+        // 30-second timeout safety gate to prevent UI deadlock
+        const analysisTimeout = setTimeout(() => {
+            setIsAnalyzing(false);
+            alert("Analysis timed out. Please try again or check your network connection.");
+        }, 30000);
+
         try {
+            const structuredPrompt = `Generate a highly detailed and structured study guide based on the provided material in Korean.
+Please output the guide in valid Markdown with the following specific structure:
+- Begin with a main title using '# [Subject Name]'.
+- Section 1: '## 📌 Overview' — A clear, 3-4 sentence summary of the study material.
+- Section 2: '## 🔑 Key Terms' — A definitions table using markdown table format ('| Term | Definition |'). List key terms from the document.
+- Section 3: '## 📖 Core Concepts' — Deep-dive analysis of the main concepts. Break down into subheadings '### Concept Name' and explain clearly with examples.
+- Section 4: '## 📊 Quick Reference' — A quick summary table or key formulas/rules.
+- Section 5: '## ✅ Key Takeaways' — A bulleted list of crucial points the student must remember.
+
+Ensure NZ English style spelling is preferred for technical English terms, and the currency unit is $(NZD) if financial references are made. The overall guide must be in Korean.`;
+
             // Step 1: Generate AI Study Guide
             const guideResult = await generateStudyGuideAction(
-                `Generate a structured study guide for ${fileName}. Provide clear summary and key takeaways.`, 
+                structuredPrompt, 
                 [{ url: fileUrl, mimeType, name: fileName }], 
                 'ko'
             );
@@ -54,7 +72,6 @@ export default function TutorPage() {
                 
                 setCurrentSessionId(sessionId);
                 setActiveView('STUDY'); // Move to Study Room immediately
-                setIsAnalyzing(false);
 
                 // Step 3: Background - Generate Quiz
                 if (guideResult.content) {
@@ -66,10 +83,12 @@ export default function TutorPage() {
                 }
             } else {
                 alert("Master Teacher Analysis failed. Please try again.");
-                setIsAnalyzing(false);
             }
         } catch (err) {
             console.error("Dashboard Error:", err);
+            alert("An error occurred during analysis. Please try again.");
+        } finally {
+            clearTimeout(analysisTimeout);
             setIsAnalyzing(false);
         }
     };
