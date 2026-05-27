@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useState } from 'react';
+import { upload } from '@vercel/blob/client';
 import { useLibraryStore } from '@/store/useLibraryStore'; // Updated to match likely real store path
 
 // Maximum file size: 20MB
@@ -48,60 +49,18 @@ export default function MaterialUploader({ onUploadComplete }: MaterialUploaderP
 
     try {
       setIsUploading(true);
-      setProgress(5);
+      setProgress(5); // Initial kick-off
 
-      // 특수문자나 공백이 URL 인코딩 되면서 Token Signature Mismatch (403/가짜 CORS) 발생 방지
-      const safeFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-
-      // 디버깅: 업로드할 원본 파일 객체의 무결성 검증 로깅
-      console.log(`[MaterialUploader] Initiating upload for file: ${safeFilename}`);
-      console.log(`[MaterialUploader] File info: size=${file.size} bytes (${(file.size/1024/1024).toFixed(2)}MB), type=${file.type}`);
-      if (!file || file.size === 0) {
-        throw new Error('File object is empty or corrupted.');
-      }
-
-      // 1. 서버에 Signed URL 요청
-      setProgress(10);
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filename: safeFilename, contentType: file.type }),
+      // 🔥 FIXED: Added onUploadProgress to resolve the 15% hang issue
+      const newBlob = await upload(`materials/${Date.now()}-${file.name}`, file, {
+        access: 'public',
+        handleUploadUrl: '/api/upload',
+        onUploadProgress: (progressEvent) => {
+          // Calculate percentage based on Vercel's event structure
+          const percentage = Math.round(progressEvent.percentage);
+          setProgress(percentage);
+        }
       });
-
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.error || 'Failed to get upload URL');
-      }
-
-      const { uploadUrl, publicUrl, filename: finalFilename } = await res.json();
-
-      // 2. XMLHttpRequest를 사용한 GCS 직접 업로드 (진행률 표시 지원)
-      await new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open('PUT', uploadUrl, true);
-        xhr.setRequestHeader('Content-Type', file.type);
-        
-        xhr.upload.onprogress = (e) => {
-          if (e.lengthComputable) {
-            // 서버 응답 대기 시간을 고려하여 최대 99%까지만 진행
-            const percentage = Math.round((e.loaded / e.total) * 99);
-            setProgress((prev) => percentage > prev ? percentage : prev);
-          }
-        };
-
-        xhr.onload = () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            resolve(true);
-          } else {
-            reject(new Error(`GCS upload failed with status ${xhr.status}`));
-          }
-        };
-
-        xhr.onerror = () => reject(new Error('Network error during GCS upload'));
-        xhr.send(file);
-      });
-      
-      const newBlob = { url: publicUrl };
       
       setProgress(100);
 
@@ -120,17 +79,11 @@ export default function MaterialUploader({ onUploadComplete }: MaterialUploaderP
       }
       
     } catch (err: any) {
-      console.error('[MaterialUploader] Error:', err);
-
-      // 에러 메시지 한글화 및 상세화
-      let userFriendlyMsg = err.message;
-      if (err.message.includes('400')) userFriendlyMsg = '업로드 요청이 거부되었습니다. 파일 형식을 확인해주세요.';
-      if (err.message.includes('500') || err.message.includes('signBlob')) userFriendlyMsg = '서버 스토리지 권한 오류입니다. GCP IAM 설정을 확인해주세요.';
-      if (err.message.includes('timed out') || err.message.includes('Network error')) userFriendlyMsg = '업로드 시간이 초과되었습니다. 네트워크 상태를 확인하거나 잠시 후 다시 시도해주세요.';
-      
-      setErrorMsg(`업로드 실패: ${userFriendlyMsg}`);
+      console.error(err);
+      setErrorMsg(`Upload failed: ${err.message}`);
     } finally {
       setIsUploading(false);
+      // Wait a moment before resetting progress for visual confirmation
       setTimeout(() => setProgress(0), 1000);
     }
   };

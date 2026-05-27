@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import { useLibraryStore } from "@/store/useLibraryStore";
 import { generateStudyGuideAction, generateQuizAction } from "@/lib/actions";
-import { getAdvancedStudyGuidePrompt } from "@/lib/prompts/studyGuidePrompt";
 
 const MaterialUploader = dynamic(() => import("@/components/ui/MaterialUploader"), { ssr: false });
 const MyLibraryView = dynamic(() => import("@/components/study/MyLibraryView"), { ssr: false });
@@ -29,19 +28,10 @@ export default function TutorPage() {
      */
     const handleUploadComplete = async (fileUrl: string, fileName: string, mimeType: string) => {
         setIsAnalyzing(true);
-        
-        // 30-second timeout safety gate to prevent UI deadlock
-        const analysisTimeout = setTimeout(() => {
-            setIsAnalyzing(false);
-            alert("Analysis timed out. Please try again or check your network connection.");
-        }, 30000);
-
         try {
-            const structuredPrompt = getAdvancedStudyGuidePrompt();
-
             // Step 1: Generate AI Study Guide
             const guideResult = await generateStudyGuideAction(
-                structuredPrompt, 
+                `Generate a structured study guide for ${fileName}. Provide clear summary and key takeaways.`, 
                 [{ url: fileUrl, mimeType, name: fileName }], 
                 'ko'
             );
@@ -57,7 +47,6 @@ export default function TutorPage() {
                     blobUrl: fileUrl,
                     subject: guideResult.subject || 'New Material',
                     guideMarkdown: guideResult.content || '',
-                    blueprint: guideResult.blueprint || '',
                     quizData: null,
                     quizScore: null,
                     createdAt: new Date().toISOString()
@@ -65,6 +54,7 @@ export default function TutorPage() {
                 
                 setCurrentSessionId(sessionId);
                 setActiveView('STUDY'); // Move to Study Room immediately
+                setIsAnalyzing(false);
 
                 // Step 3: Background - Generate Quiz
                 if (guideResult.content) {
@@ -76,18 +66,16 @@ export default function TutorPage() {
                 }
             } else {
                 alert("Master Teacher Analysis failed. Please try again.");
+                setIsAnalyzing(false);
             }
         } catch (err) {
             console.error("Dashboard Error:", err);
-            alert("An error occurred during analysis. Please try again.");
-        } finally {
-            clearTimeout(analysisTimeout);
             setIsAnalyzing(false);
         }
     };
 
     return (
-        <main className="w-full min-h-screen bg-zinc-900 text-zinc-200 overflow-x-hidden">
+        <main className="w-full min-h-screen bg-slate-950 text-slate-200 overflow-x-hidden">
             <div className="max-w-7xl mx-auto px-6 py-8">
                 
                 {/* Header Section */}
