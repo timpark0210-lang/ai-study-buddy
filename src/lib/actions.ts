@@ -48,12 +48,17 @@ export async function generateStudyGuideAction(files: any[], locale: string) {
     let subjectTitle = 'New Material';
     try {
       let detText = detectionResult.response.text();
+      const match = detText.match(/\{[\s\S]*\}/);
+      if (match) {
+        detText = match[0];
+      }
       detText = detText.replace(/```json/g, '').replace(/```/g, '').trim();
       const detJson = JSON.parse(detText);
       subjectCode = detJson.subjectCode || 'OTHER';
       subjectTitle = detJson.subject || 'New Material';
     } catch (e) {
       console.warn("Subject detection parsing failed, defaulting to OTHER");
+      console.error(e);
     }
 
     // Pass 2: Content Generation
@@ -64,6 +69,10 @@ export async function generateStudyGuideAction(files: any[], locale: string) {
     });
 
     let text = result.response.text();
+    const match = text.match(/\{[\s\S]*\}/);
+    if (match) {
+        text = match[0];
+    }
     text = text.replace(/```json/g, '').replace(/```/g, '').trim();
     
     let tabs = {

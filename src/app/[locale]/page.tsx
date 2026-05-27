@@ -19,7 +19,7 @@ export default function DashboardPage() {
         const analysisTimeout = setTimeout(() => {
             setIsAnalyzing(false);
             alert("Analysis timed out. Please try again or check your network connection.");
-        }, 30000);
+        }, 90000);
 
         try {
             const guideResult = await generateStudyGuideAction(
