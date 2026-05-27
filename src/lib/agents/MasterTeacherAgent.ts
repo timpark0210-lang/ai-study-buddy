@@ -5,7 +5,7 @@ export class MasterTeacherAgent extends BaseAgent {
     constructor() {
         super(
             "MasterTeacher",
-            "gemini-1.5-pro",
+            process.env.GEMINI_ANALYSIS_MODEL || "gemini-3.5-flash",
             `You are a Master Teacher specialized in creating premium Study Guides. 
             Analyze the student's materials and context to create a comprehensive guide. 
             Use Markdown and LaTeX. Keep it structured, clear, and encouraging.

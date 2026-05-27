@@ -5,7 +5,7 @@ export class QuizAgent extends BaseAgent {
     constructor() {
         super(
             "QuizAgent",
-            "gemini-1.5-pro",
+            process.env.GEMINI_ANALYSIS_MODEL || "gemini-3.5-flash",
             `You are an adaptive Quiz Master. 
             Create 5 challenging yet fair multiple-choice questions.
             Include detailed explanations for each answer. 

@@ -3,7 +3,7 @@
 ## 1. Project Identity
 - **Name**: Kia Ora Tutor
 - **Active Project**: **"Kia Ora Tutor"** (NZ Secondary School AI Study Assistant).
-- **Platform**: Next.js 16.1.6 (Turbopack) + Gemini 1.5/2.5.
+- **Platform**: Next.js 16.1.6 (Turbopack) + Gemini 2.5/3.5.
 - **Architecture**: Internationalized routing (`src/app/[locale]`), Zustand state, Tailwind v4 styling.
 - **Operational Guard**: Always use `;` for command chaining and avoid parentheses in git commits due to Windows PowerShell constraints.
 - **Core Vision**: A premium, AI-driven educational assistant with a focus on New Zealand context and bilingual support (EN/KO).
@@ -17,7 +17,7 @@
 - **Storage Pipeline**: 
     - **Cloud**: Vercel Blob (Permanent storage for PDFs, MDs, user data)
     - **Local**: localforage / IndexedDB (Offline cache & rapid loading)
-- **AI Integration**: Gemini 1.5/2.5 via Next.js Server Actions
+- **AI Integration**: Gemini 2.5/3.5 via Server Actions (configurable via GEMINI_ANALYSIS_MODEL & GEMINI_CHAT_MODEL)
 - **Internationalization**: `next-intl` v4.8.3
 
 ## 3. Directory Architecture (Internationalized)

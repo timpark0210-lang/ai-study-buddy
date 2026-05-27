@@ -5,7 +5,7 @@ export class LearningStrategist extends BaseAgent {
     constructor() {
         super(
             "LearningStrategist",
-            "gemini-1.5-pro",
+            process.env.GEMINI_CHAT_MODEL || "gemini-2.5-flash",
             `You are a Master Learning Strategist. 
             Formulate a Socratic 'Scaffolding Plan'. 
             NEVER give the answer. Decide the next educational step.

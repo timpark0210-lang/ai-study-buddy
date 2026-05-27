@@ -1,6 +1,7 @@
 'use server';
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getSubjectDetectionPrompt, getSubjectSpecificPrompt } from "./prompts/studyGuidePrompt";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
@@ -12,14 +13,13 @@ async function urlToBase64(url: string): Promise<string> {
 }
 
 /**
- * 🔥 AI Master Teacher - Phase 3 (Gemini 2.0 Flash)
+ * 🔥 AI Master Teacher - Phase 4 (Subject-Aware 2-Pass Generation)
  * Generates high-fidelity study materials from uploaded files.
  */
-export async function generateStudyGuideAction(prompt: string, files: any[], locale: string) {
+export async function generateStudyGuideAction(files: any[], locale: string) {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: process.env.GEMINI_ANALYSIS_MODEL || "gemini-3.5-flash" });
     
-    // Preparation for multimodal input (supporting browser-based URLs and Blobs)
     const fileParts = await Promise.all(
       files.map(async (f) => {
         let base64Data: string;
@@ -37,26 +37,53 @@ export async function generateStudyGuideAction(prompt: string, files: any[], loc
       })
     );
 
-    const parts = [
-      { text: prompt },
-      ...fileParts
-    ];
+    // Pass 1: Subject Detection
+    const detectionPrompt = getSubjectDetectionPrompt();
+    const detectionResult = await model.generateContent({
+       contents: [{ role: 'user', parts: [{ text: detectionPrompt }, ...fileParts] }],
+       generationConfig: { maxOutputTokens: 200, temperature: 0.1 }
+    });
+    
+    let subjectCode = 'OTHER';
+    let subjectTitle = 'New Material';
+    try {
+      let detText = detectionResult.response.text();
+      detText = detText.replace(/```json/g, '').replace(/```/g, '').trim();
+      const detJson = JSON.parse(detText);
+      subjectCode = detJson.subjectCode || 'OTHER';
+      subjectTitle = detJson.subject || 'New Material';
+    } catch (e) {
+      console.warn("Subject detection parsing failed, defaulting to OTHER");
+    }
 
+    // Pass 2: Content Generation
+    const specificPrompt = getSubjectSpecificPrompt(subjectCode);
     const result = await model.generateContent({
-       contents: [{ role: 'user', parts }],
-       generationConfig: {
-         maxOutputTokens: 2000,
-         temperature: 0.7,
-       }
-     });
+       contents: [{ role: 'user', parts: [{ text: specificPrompt }, ...fileParts] }],
+       generationConfig: { maxOutputTokens: 8000, temperature: 0.7 }
+    });
 
-    const response = await result.response;
-    const text = response.text();
+    let text = result.response.text();
+    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    
+    let tabs = {
+      guide: "",
+      walkthrough: "",
+      practice: ""
+    };
+
+    try {
+      tabs = JSON.parse(text);
+    } catch (e) {
+      console.error("Failed to parse tabs JSON:", e);
+      tabs.guide = text; // Fallback
+    }
 
     return { 
         success: true, 
-        content: text,
-        subject: text.split('\n')[0].replace('#', '').trim() 
+        subject: subjectTitle,
+        subjectCode: subjectCode,
+        tabs: tabs
     };
   } catch (error) {
     console.error("AI Error:", error);
@@ -66,7 +93,7 @@ export async function generateStudyGuideAction(prompt: string, files: any[], loc
 
 export async function generateQuizAction(content: string, count: number = 5) {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        const model = genAI.getGenerativeModel({ model: process.env.GEMINI_ANALYSIS_MODEL || "gemini-3.5-flash" });
         const prompt = `Based on the following study guide, generate ${count} multiple-choice questions in JSON format. 
         Format: Array<{ question: string, options: string[], answer: number, explanation: string }>
         
@@ -86,7 +113,7 @@ export async function generateQuizAction(content: string, count: number = 5) {
 
 export async function chatAction(userMsg: string, contextMarkdown: string, history: any[]) {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        const model = genAI.getGenerativeModel({ model: process.env.GEMINI_CHAT_MODEL || "gemini-2.5-flash" });
         
         const contents = history.map(msg => ({
             role: msg.role === 'user' ? 'user' : 'model',
@@ -119,4 +146,3 @@ export async function chatAction(userMsg: string, contextMarkdown: string, histo
         return { success: false, error: "Thinking failure" };
     }
 }
-

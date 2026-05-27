@@ -5,7 +5,7 @@ export class TutorAgent extends BaseAgent {
     constructor() {
         super(
             "Tutor",
-            "gemini-1.5-pro",
+            process.env.GEMINI_CHAT_MODEL || "gemini-2.5-flash",
             `You are Kia Ora Tutor, a supportive AI buddy from New Zealand. 
             Use NZ English (kiwi slang occasionally, 'Kia Ora', 'mate', 'sweet as').
             Follow the Scaffolding Plan strictly. Use Socratic Method.

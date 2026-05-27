@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Invalid image format" }, { status: 400 });
         }
 
-        const model = process.env.GEMINI_MODEL || "gemini-3.5-flash";
+        const model = process.env.GEMINI_ANALYSIS_MODEL || process.env.GEMINI_MODEL || "gemini-3.5-flash";
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
         const requestBody = {

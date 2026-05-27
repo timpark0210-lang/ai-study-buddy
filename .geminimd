@@ -13,7 +13,7 @@
 - **Currency & Locale**: **NZD ($)** 및 **en-NZ** 로케일을 기본으로 하며, 뉴질랜드식 철자법을 준수합니다.
 
 ## Active Project: Kia Ora Tutor
-- **Platform**: Next.js 16.1.6 (Turbopack) + Gemini 1.5/2.5.
+- **Platform**: Next.js 16.1.6 (Turbopack) + Gemini 2.5/3.5.
 - **Architecture**: Internationalized routing (`src/app/[locale]`), Zustand state, Tailwind v4 styling.
 - **Core Vision**: 뉴질랜드 중등학교 학생들을 위한 프리미엄 AI 학습 보조 시스템.
 - **Production URL**: https://ai-study-buddy-ashen.vercel.app/en/tutor
