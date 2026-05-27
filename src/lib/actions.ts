@@ -4,6 +4,13 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
+async function urlToBase64(url: string): Promise<string> {
+  const response = await fetch(url);
+  const arrayBuffer = await response.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+  return buffer.toString('base64');
+}
+
 /**
  * 🔥 AI Master Teacher - Phase 3 (Gemini 2.0 Flash)
  * Generates high-fidelity study materials from uploaded files.
@@ -13,14 +20,26 @@ export async function generateStudyGuideAction(prompt: string, files: any[], loc
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     
     // Preparation for multimodal input (supporting browser-based URLs and Blobs)
+    const fileParts = await Promise.all(
+      files.map(async (f) => {
+        let base64Data: string;
+        if (f.url.startsWith('http')) {
+          base64Data = await urlToBase64(f.url);
+        } else {
+          base64Data = f.url.split(',')[1] || f.url;
+        }
+        return {
+          inlineData: {
+            data: base64Data,
+            mimeType: f.mimeType,
+          },
+        };
+      })
+    );
+
     const parts = [
       { text: prompt },
-      ...files.map(f => ({
-        inlineData: {
-          data: f.url.split(',')[1] || f.url, 
-          mimeType: f.mimeType
-        }
-      }))
+      ...fileParts
     ];
 
     const result = await model.generateContent({
