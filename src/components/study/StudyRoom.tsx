@@ -28,7 +28,7 @@ export default function StudyRoom({ session, onStartQuiz }: StudyRoomProps) {
         margin: 0.5, 
         filename: `StudyBuddy_${session.subject}_${Date.now()}.pdf`, 
         image: { type: 'jpeg' as const, quality: 0.98 }, 
-        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#020617' }, // Slate-950
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' }, // White background for crisp printing
         jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' as const } 
       }; 
       await html2pdf().set(opt).from(contentRef.current).save(); 
@@ -84,8 +84,8 @@ export default function StudyRoom({ session, onStartQuiz }: StudyRoomProps) {
 
       {/* Main Content Area */}
       <div className="flex-1 pb-20 relative"> 
-        <div ref={contentRef} className="glass-card p-10 md:p-16 min-h-full bg-slate-950 border-slate-800/50 shadow-[0_0_50px_rgba(0,0,0,0.5)]" > 
-          <div className="prose-premium selection:bg-indigo-500/30 selection:text-white"> 
+        <div ref={contentRef} className="rounded-3xl p-10 md:p-16 min-h-full bg-white border border-slate-200/80 shadow-[0_10px_50px_rgba(0,0,0,0.06)]" > 
+          <div className="prose-light selection:bg-indigo-500/10 selection:text-indigo-900"> 
             <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}> 
               {session.guideMarkdown} 
             </ReactMarkdown> 
