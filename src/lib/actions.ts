@@ -77,23 +77,42 @@ export async function generateStudyGuideAction(files: any[], locale: string) {
     };
 
     try {
-      const guideSplit = text.split('[TAB: GUIDE]');
-      if (guideSplit.length > 1) {
-          const rest1 = guideSplit[1];
-          const wtSplit = rest1.split('[TAB: WALKTHROUGH]');
-          tabs.guide = wtSplit[0].replace(/^```[a-z]*\n/i, '').replace(/```$/i, '').trim();
-          
-          if (wtSplit.length > 1) {
-              const rest2 = wtSplit[1];
-              const pSplit = rest2.split('[TAB: PRACTICE]');
-              tabs.walkthrough = pSplit[0].replace(/^```[a-z]*\n/i, '').replace(/```$/i, '').trim();
-              if (pSplit.length > 1) {
-                  tabs.practice = pSplit[1].replace(/^```[a-z]*\n/i, '').replace(/```$/i, '').trim();
-              }
+      // 1. Try to parse as JSON first (Backward compatibility for older sessions or LLM hallucinations)
+      let parsedJson = null;
+      try {
+          const jsonMatch = text.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+              parsedJson = JSON.parse(jsonMatch[0].replace(/```json/g, '').replace(/```/g, '').trim());
+          } else {
+              parsedJson = JSON.parse(text.replace(/```json/g, '').replace(/```/g, '').trim());
           }
+      } catch (e) {
+          // Not JSON, continue to delimiter extraction
+      }
+
+      if (parsedJson && parsedJson.guide) {
+          tabs.guide = parsedJson.guide || "";
+          tabs.walkthrough = parsedJson.walkthrough || "";
+          tabs.practice = parsedJson.practice || "";
       } else {
-          // Fallback if delimiters aren't used
-          tabs.guide = text;
+          // 2. Fallback to Regex delimiter extraction
+          const extractTab = (fullText: string, tabName: string) => {
+              const regex = new RegExp(`\\[TAB:\\s*${tabName}\\]([\\s\\S]*?)(?=\\[TAB:|$)`, 'i');
+              const match = fullText.match(regex);
+              if (match && match[1]) {
+                  return match[1].replace(/^```[a-z]*\n/i, '').replace(/```$/i, '').trim();
+              }
+              return "";
+          };
+
+          tabs.guide = extractTab(text, 'GUIDE');
+          tabs.walkthrough = extractTab(text, 'WALKTHROUGH');
+          tabs.practice = extractTab(text, 'PRACTICE');
+
+          // 3. Ultimate Fallback
+          if (!tabs.guide && !tabs.walkthrough && !tabs.practice) {
+              tabs.guide = text;
+          }
       }
     } catch (e) {
       console.error("Failed to parse tabs text:", e);
