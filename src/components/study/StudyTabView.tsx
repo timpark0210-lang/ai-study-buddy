@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import remarkGfm from 'remark-gfm';
 import 'katex/dist/katex.min.css';
 
 interface StudyTabViewProps {
@@ -55,8 +56,8 @@ export default function StudyTabView({ subjectCode = 'OTHER', tabs }: StudyTabVi
 
       {/* Tab Content */}
       <div className="flex-1 bg-white">
-        <div className="prose-light selection:bg-indigo-500/10 selection:text-indigo-900 animate-in fade-in duration-500">
-          <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+        <div className="prose-light selection:bg-indigo-500/10 selection:text-indigo-900 animate-in fade-in duration-500 overflow-x-auto">
+          <ReactMarkdown remarkPlugins={[remarkMath, remarkGfm]} rehypePlugins={[rehypeKatex]}>
             {tabs[activeTab]}
           </ReactMarkdown>
         </div>

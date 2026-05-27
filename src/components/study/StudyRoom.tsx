@@ -3,6 +3,7 @@ import React, { useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown'; 
 import remarkMath from 'remark-math'; 
 import rehypeKatex from 'rehype-katex'; 
+import remarkGfm from 'remark-gfm';
 import 'katex/dist/katex.min.css'; 
 import { StudySession } from '@/store/useLibraryStore'; 
 import StudyTabView from './StudyTabView';
@@ -23,19 +24,23 @@ export default function StudyRoom({ session, onStartQuiz }: StudyRoomProps) {
     if (!contentRef.current) return; 
     try { 
       setIsExporting(true); 
-      // Dynamic import to keep bundle small
-      const html2pdf = (await import('html2pdf.js')).default; 
+      const html2pdfModule = await import('html2pdf.js'); 
+      const html2pdf = html2pdfModule.default || html2pdfModule;
+      if (typeof html2pdf !== 'function') {
+        throw new Error("html2pdf is not a function");
+      }
       const opt = { 
         margin: 0.5, 
         filename: `StudyBuddy_${session.subject}_${Date.now()}.pdf`, 
         image: { type: 'jpeg' as const, quality: 0.98 }, 
-        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' }, // White background for crisp printing
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
         jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' as const } 
       }; 
       await html2pdf().set(opt).from(contentRef.current).save(); 
     } catch (err: any) { 
       console.error(err);
-      alert('PDF generation failed. Please try again.'); 
+      alert('PDF generation failed with html2pdf. Using browser print instead.');
+      window.print();
     } finally { 
       setIsExporting(false); 
     } 
@@ -89,8 +94,8 @@ export default function StudyRoom({ session, onStartQuiz }: StudyRoomProps) {
           {session.tabs && session.tabs.guide ? (
             <StudyTabView subjectCode={session.subjectCode} tabs={session.tabs} />
           ) : (
-            <div className="prose-light selection:bg-indigo-500/10 selection:text-indigo-900"> 
-              <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}> 
+            <div className="prose-light selection:bg-indigo-500/10 selection:text-indigo-900 overflow-x-auto"> 
+              <ReactMarkdown remarkPlugins={[remarkMath, remarkGfm]} rehypePlugins={[rehypeKatex]}> 
                 {session.guideMarkdown} 
               </ReactMarkdown> 
             </div> 
