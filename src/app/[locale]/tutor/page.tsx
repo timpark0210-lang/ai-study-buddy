@@ -31,7 +31,6 @@ export default function TutorPage() {
         try {
             // Step 1: Generate AI Study Guide
             const guideResult = await generateStudyGuideAction(
-                `Generate a structured study guide for ${fileName}. Provide clear summary and key takeaways.`, 
                 [{ url: fileUrl, mimeType, name: fileName }], 
                 'ko'
             );
@@ -46,7 +45,10 @@ export default function TutorPage() {
                     fileType: mimeType.includes('pdf') ? 'pdf' : mimeType.includes('word') ? 'word' : 'image',
                     blobUrl: fileUrl,
                     subject: guideResult.subject || 'New Material',
-                    guideMarkdown: guideResult.content || '',
+                    subjectCode: guideResult.subjectCode || 'OTHER',
+                    guideMarkdown: guideResult.tabs?.guide || '',
+                    tabs: guideResult.tabs,
+                    blueprint: '',
                     quizData: null,
                     quizScore: null,
                     createdAt: new Date().toISOString()
@@ -57,8 +59,8 @@ export default function TutorPage() {
                 setIsAnalyzing(false);
 
                 // Step 3: Background - Generate Quiz
-                if (guideResult.content) {
-                   generateQuizAction(guideResult.content, 5).then(quizResult => {
+                if (guideResult.tabs?.guide) {
+                   generateQuizAction(guideResult.tabs.guide, 5).then(quizResult => {
                        if (quizResult.success) {
                            updateStudySession(sessionId, { quizData: quizResult.data });
                        }

@@ -5,7 +5,6 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useLibraryStore } from "@/store/useLibraryStore";
 import { generateStudyGuideAction, generateQuizAction } from "@/lib/actions";
-import { getAdvancedStudyGuidePrompt } from "@/lib/prompts/studyGuidePrompt";
 
 const MaterialUploader = dynamic(() => import("@/components/ui/MaterialUploader"), { ssr: false });
 
@@ -23,10 +22,7 @@ export default function DashboardPage() {
         }, 30000);
 
         try {
-            const structuredPrompt = getAdvancedStudyGuidePrompt();
-
             const guideResult = await generateStudyGuideAction(
-                structuredPrompt, 
                 [{ url: fileUrl, mimeType, name: fileName }], 
                 'en'
             );
@@ -40,7 +36,9 @@ export default function DashboardPage() {
                     fileType: mimeType.includes('pdf') ? 'pdf' : mimeType.includes('word') ? 'word' : 'image',
                     blobUrl: fileUrl,
                     subject: guideResult.subject || 'New Material',
-                    guideMarkdown: guideResult.content || '',
+                    subjectCode: guideResult.subjectCode || 'OTHER',
+                    guideMarkdown: guideResult.tabs?.guide || '',
+                    tabs: guideResult.tabs,
                     blueprint: '',
                     quizData: null,
                     quizScore: null,
@@ -50,8 +48,8 @@ export default function DashboardPage() {
                 setCurrentSessionId(sessionId);
                 router.push(`/en/study/${sessionId}`);
 
-                if (guideResult.content) {
-                   generateQuizAction(guideResult.content, 5).then(quizResult => {
+                if (guideResult.tabs?.guide) {
+                   generateQuizAction(guideResult.tabs.guide, 5).then(quizResult => {
                        if (quizResult.success) {
                            updateStudySession(sessionId, { quizData: quizResult.data });
                        }

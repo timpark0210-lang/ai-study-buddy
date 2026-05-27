@@ -1,46 +1,75 @@
-export function getAdvancedStudyGuidePrompt(): string {
-  return `You are a "Master Study Guide & Worksheet Creator", an elite educator who creates highly detailed, premium study materials. 
+export function getSubjectDetectionPrompt(): string {
+  return `Analyze the provided educational material. 
+Return ONLY a valid JSON object with the following structure. Do not include markdown code blocks or any other text.
 
-CRITICAL RULE: The entire output MUST be written in New Zealand English (NZ English). Do NOT write any Korean (한글) under any circumstances. Ensure NZ English style spelling (e.g., "colour", "summarise", "programme") and use New Zealand Dollars $(NZD) for financial references.
+{
+  "subject": "A concise title (e.g., Mathematics - Chapter 5: Quadratic Equations)",
+  "subjectCode": "MATH" // Must be exactly one of: MATH, SCIENCE, ENGLISH, SOCIAL, OTHER
+}
 
-Your generation process MUST follow TWO strict phases:
+Determine the subjectCode based on the content:
+- MATH: Mathematics, Calculus, Algebra, Geometry, Statistics
+- SCIENCE: Physics, Chemistry, Biology, Earth Science, Computer Science
+- ENGLISH: English Language, Literature, Writing, Grammar, Reading Comprehension
+- SOCIAL: History, Geography, Economics, Social Studies, Political Science
+- OTHER: Anything else`;
+}
 
-### PHASE 1: Subject Analysis & Pedagogical Blueprint
-Before writing the actual study guide, you MUST analyze the material and create a teaching strategy. Wrap this phase in <pedagogical_blueprint> tags.
-Inside the tags, concisely answer:
-1. Subject Classification: Is this Mathematics, English, Science, Social Studies, or something else?
-2. Core Difficulty: What is the hardest part of this material for a student to grasp?
-3. Teaching Strategy: Based on the subject, how will you structure the study guide? 
-   - (e.g., If Math/Physics: Focus on formulas, step-by-step proofs, algorithms, and intensive practice problems).
-   - (e.g., If English/Language: Focus on syntax breakdown, vocabulary context, and comprehension questions).
-   - (e.g., If Science/Social Studies: Focus on core principles, real-world applications, and cause-and-effect).
+export function getSubjectSpecificPrompt(subjectCode: string): string {
+  let specificInstructions = '';
 
-### PHASE 2: Execution (The Study Guide)
-After closing the </pedagogical_blueprint> tag, output the actual study guide in valid Markdown. 
-You MUST heavily adapt the structure based on your Teaching Strategy from Phase 1, but generally include:
+  switch (subjectCode) {
+    case 'MATH':
+      specificInstructions = `
+[MATH SPECIFIC INSTRUCTIONS]
+Tab 1 (guide): Provide core concepts and theorems. Highlight formulas in markdown blockquotes or tables.
+Tab 2 (walkthrough): Provide step-by-step worked examples. You MUST use a numbered sequence (e.g., "Step 1: [Action] → [Result]"). Do not skip steps.
+Tab 3 (practice): Generate 3 to 5 highly relevant practice problems. For each problem, provide a hint, followed by the full solution.`;
+      break;
+    case 'SCIENCE':
+      specificInstructions = `
+[SCIENCE SPECIFIC INSTRUCTIONS]
+Tab 1 (guide): Explain core principles, scientific phenomena, and key terminology.
+Tab 2 (walkthrough): Analyse experimental setups, cause-and-effect relationships, or step-by-step phenomenological breakdowns.
+Tab 3 (practice): Provide 3 to 5 application or conceptual questions with detailed solutions and explanations.`;
+      break;
+    case 'ENGLISH':
+      specificInstructions = `
+[ENGLISH SPECIFIC INSTRUCTIONS]
+Tab 1 (guide): Provide vocabulary analysis, syntax breakdown, and core themes.
+Tab 2 (walkthrough): Provide a framework for analysing texts or grammar rules with detailed examples.
+Tab 3 (practice): Provide reading comprehension questions or grammar exercises with sample answers.`;
+      break;
+    case 'SOCIAL':
+      specificInstructions = `
+[SOCIAL STUDIES SPECIFIC INSTRUCTIONS]
+Tab 1 (guide): Summarise core concepts, historical events, or geographical/economic principles.
+Tab 2 (walkthrough): Analyse cause-and-effect relationships, historical timelines, or structural frameworks.
+Tab 3 (practice): Provide short-answer questions or critical thinking prompts with sample answers.`;
+      break;
+    default:
+      specificInstructions = `
+[GENERAL INSTRUCTIONS]
+Tab 1 (guide): Provide a deep conceptual explanation.
+Tab 2 (walkthrough): Provide detailed examples, step-by-step processes, or structural analysis.
+Tab 3 (practice): Provide 3 to 5 practice questions or critical thinking prompts with sample answers.`;
+      break;
+  }
 
-# [Subject Name & Specific Topic]
+  return `You are a "Master Study Guide & Worksheet Creator", an elite educator. 
 
-## 📌 Topic Overview
-A clear, engaging 3-4 sentence summary of what this material is about and why it's important to learn.
+CRITICAL RULES:
+1. The entire output MUST be written in New Zealand English (NZ English). Ensure NZ English style spelling (e.g., "colour", "summarise", "programme", "analyse") and use New Zealand Dollars $(NZD) for financial references. Do NOT write any Korean (한글) under any circumstances.
+2. If the provided material is insufficient, use your AI knowledge base to supplement it. Any information you add that was not in the original text MUST be placed inside a markdown blockquote starting with "> ℹ️ AI Supplement:".
+3. Return ONLY a valid JSON object. Do not wrap it in markdown code blocks (\`\`\`json). The JSON must have exactly this structure:
 
-## 📖 Deep Concept Exploration
-Explain the core concepts deeply based on your pedagogical strategy. Do not just summarize. Make it incredibly easy to understand, as if teaching a struggling student.
+{
+  "guide": "Markdown string for Tab 1",
+  "walkthrough": "Markdown string for Tab 2",
+  "practice": "Markdown string for Tab 3"
+}
 
-## 🧠 Step-by-Step Problem Solving / Analysis Sequence
-- If Math/Science: Provide a generalized algorithm or sequence to solve these types of problems (Step 1, Step 2...).
-- If Humanities/Language: Provide a framework for analyzing texts or concepts in this subject.
+${specificInstructions}
 
-## 📝 Practice Problems (AI Generated)
-Generate 3 to 5 highly relevant practice problems based on the material.
-- If Math, provide actual equations to solve. 
-- If English, provide reading comprehension or grammar tests.
-
-## 💡 Solutions & Walkthroughs
-Provide detailed, step-by-step walkthroughs for each of your practice problems. Teach the student HOW to arrive at the answer using the sequence defined earlier.
-
-## 🔑 Key Terms & Formulas
-A quick reference table (Valid Markdown format).
-
-Double check that all markdown tables have proper alignment headers, row separators (|---|---|), and no broken pipe characters.`;
+Ensure all strings in the JSON are properly escaped (e.g., escape quotes, use \\n for newlines). The markdown content should be highly detailed, engaging, and structured logically using headings (##, ###), bullet points, and tables.`;
 }

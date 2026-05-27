@@ -5,6 +5,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex'; 
 import 'katex/dist/katex.min.css'; 
 import { StudySession } from '@/store/useLibraryStore'; 
+import StudyTabView from './StudyTabView';
 
 interface StudyRoomProps { 
   session: StudySession; 
@@ -85,11 +86,15 @@ export default function StudyRoom({ session, onStartQuiz }: StudyRoomProps) {
       {/* Main Content Area */}
       <div className="flex-1 pb-20 relative"> 
         <div ref={contentRef} className="rounded-3xl p-10 md:p-16 min-h-full bg-white border border-slate-200/80 shadow-[0_10px_50px_rgba(0,0,0,0.06)]" > 
-          <div className="prose-light selection:bg-indigo-500/10 selection:text-indigo-900"> 
-            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}> 
-              {session.guideMarkdown} 
-            </ReactMarkdown> 
-          </div> 
+          {session.tabs && session.tabs.guide ? (
+            <StudyTabView subjectCode={session.subjectCode} tabs={session.tabs} />
+          ) : (
+            <div className="prose-light selection:bg-indigo-500/10 selection:text-indigo-900"> 
+              <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}> 
+                {session.guideMarkdown} 
+              </ReactMarkdown> 
+            </div> 
+          )}
         </div> 
 
         {/* Ambient Background Glows */}

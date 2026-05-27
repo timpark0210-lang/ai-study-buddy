@@ -7,8 +7,14 @@ export interface StudySession {
     fileType: 'pdf' | 'word' | 'image';
     blobUrl: string;
     subject: string;
+    subjectCode?: string;
     guideMarkdown: string;
     blueprint?: string;
+    tabs?: {
+        guide: string;
+        walkthrough: string;
+        practice: string;
+    };
     quizData: any;
     quizScore: number | null;
     createdAt: string;
