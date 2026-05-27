@@ -1,6 +1,5 @@
 'use server';
 
-import { put } from '@vercel/blob';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
@@ -56,7 +55,7 @@ export async function generateQuizAction(content: string, count: number = 5) {
 
         const result = await model.generateContent(prompt);
         const text = result.response.text();
-        const jsonMatch = text.match(/\[.*\]/s);
+        const jsonMatch = text.match(/\[[\s\S]*\]/);
         const quizData = jsonMatch ? JSON.parse(jsonMatch[0]) : [];
 
         return { success: true, data: quizData };
@@ -65,3 +64,40 @@ export async function generateQuizAction(content: string, count: number = 5) {
         return { success: false, error: "Quiz failure" };
     }
 }
+
+export async function chatAction(userMsg: string, contextMarkdown: string, history: any[]) {
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        
+        const contents = history.map(msg => ({
+            role: msg.role === 'user' ? 'user' : 'model',
+            parts: [{ text: msg.text }]
+        }));
+
+        const systemPrompt = `You are a helpful and premium AI tutor. Below is the study material context of this study session. 
+        Please answer the user's questions strictly based on the context, or guide them pedagogically if they ask for explanation.
+        
+        Study Material Context:
+        ${contextMarkdown}`;
+
+        contents.push({
+            role: 'user',
+            parts: [{ text: `${systemPrompt}\n\nUser Question: ${userMsg}` }]
+        });
+
+        const result = await model.generateContent({
+            contents,
+            generationConfig: {
+                maxOutputTokens: 1000,
+                temperature: 0.7,
+            }
+        });
+
+        const response = await result.response;
+        return { success: true, text: response.text() };
+    } catch (error) {
+        console.error("Chat Action Error:", error);
+        return { success: false, error: "Thinking failure" };
+    }
+}
+

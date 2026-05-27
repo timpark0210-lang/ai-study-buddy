@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useCallback, useState } from 'react';
-import { upload } from '@vercel/blob/client';
 import { useLibraryStore } from '@/store/useLibraryStore'; // Updated to match likely real store path
 
 // Maximum file size: 20MB
@@ -17,6 +16,40 @@ const ALLOWED_MIME_TYPES = [
 interface MaterialUploaderProps {
   onUploadComplete?: (fileUrl: string, fileName: string, mimeType: string) => void;
 }
+
+// Custom GCS upload helper using native XMLHttpRequest to track upload progress
+const uploadFileToGCS = (file: File, onProgress: (pct: number) => void): Promise<{ url: string }> => {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/upload');
+    
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const percentage = Math.round((event.loaded / event.total) * 100);
+        onProgress(percentage);
+      }
+    };
+    
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const response = JSON.parse(xhr.responseText);
+          resolve(response);
+        } catch (err) {
+          reject(new Error('Invalid response from server'));
+        }
+      } else {
+        reject(new Error(`Upload failed with status: ${xhr.status}`));
+      }
+    };
+    
+    xhr.onerror = () => reject(new Error('Network error during upload'));
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    xhr.send(formData);
+  });
+};
 
 export default function MaterialUploader({ onUploadComplete }: MaterialUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
@@ -51,16 +84,8 @@ export default function MaterialUploader({ onUploadComplete }: MaterialUploaderP
       setIsUploading(true);
       setProgress(5); // Initial kick-off
 
-      // 🔥 FIXED: Added onUploadProgress to resolve the 15% hang issue
-      const newBlob = await upload(`materials/${Date.now()}-${file.name}`, file, {
-        access: 'public',
-        handleUploadUrl: '/api/upload',
-        onUploadProgress: (progressEvent) => {
-          // Calculate percentage based on Vercel's event structure
-          const percentage = Math.round(progressEvent.percentage);
-          setProgress(percentage);
-        }
-      });
+      // Upload file directly to our GCS upload API endpoint
+      const newBlob = await uploadFileToGCS(file, setProgress);
       
       setProgress(100);
 

@@ -41,7 +41,7 @@ export default function DashboardPage() {
                     blobUrl: fileUrl,
                     subject: guideResult.subject || 'New Material',
                     guideMarkdown: guideResult.content || '',
-                    blueprint: guideResult.blueprint || '',
+                    blueprint: '',
                     quizData: null,
                     quizScore: null,
                     createdAt: new Date().toISOString()
