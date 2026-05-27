@@ -61,15 +61,18 @@ Tab 3 (practice): Provide 3 to 5 practice questions or critical thinking prompts
 CRITICAL RULES:
 1. The entire output MUST be written in New Zealand English (NZ English). Ensure NZ English style spelling (e.g., "colour", "summarise", "programme", "analyse") and use New Zealand Dollars $(NZD) for financial references. Do NOT write any Korean (한글) under any circumstances.
 2. If the provided material is insufficient, use your AI knowledge base to supplement it. Any information you add that was not in the original text MUST be placed inside a markdown blockquote starting with "> ℹ️ AI Supplement:".
-3. Return ONLY a valid JSON object. Do not wrap it in markdown code blocks (\`\`\`json). The JSON must have exactly this structure:
+3. Return the content separated into exactly 3 sections. Do NOT output JSON. Use the following strict section headers to separate your content:
 
-{
-  "guide": "Markdown string for Tab 1",
-  "walkthrough": "Markdown string for Tab 2",
-  "practice": "Markdown string for Tab 3"
-}
+[TAB: GUIDE]
+(Write the highly detailed markdown for Tab 1 here)
+
+[TAB: WALKTHROUGH]
+(Write the highly detailed markdown for Tab 2 here)
+
+[TAB: PRACTICE]
+(Write the highly detailed markdown for Tab 3 here)
 
 ${specificInstructions}
 
-Ensure all strings in the JSON are properly escaped (e.g., escape quotes, use \\n for newlines). The markdown content should be highly detailed, engaging, and structured logically using headings (##, ###), bullet points, and tables.`;
+The markdown content should be highly detailed, engaging, and structured logically using headings (##, ###), bullet points, and tables.`;
 }

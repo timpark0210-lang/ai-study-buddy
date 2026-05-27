@@ -69,11 +69,6 @@ export async function generateStudyGuideAction(files: any[], locale: string) {
     });
 
     let text = result.response.text();
-    const match = text.match(/\{[\s\S]*\}/);
-    if (match) {
-        text = match[0];
-    }
-    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
     
     let tabs = {
       guide: "",
@@ -82,9 +77,26 @@ export async function generateStudyGuideAction(files: any[], locale: string) {
     };
 
     try {
-      tabs = JSON.parse(text);
+      const guideSplit = text.split('[TAB: GUIDE]');
+      if (guideSplit.length > 1) {
+          const rest1 = guideSplit[1];
+          const wtSplit = rest1.split('[TAB: WALKTHROUGH]');
+          tabs.guide = wtSplit[0].replace(/^```[a-z]*\n/i, '').replace(/```$/i, '').trim();
+          
+          if (wtSplit.length > 1) {
+              const rest2 = wtSplit[1];
+              const pSplit = rest2.split('[TAB: PRACTICE]');
+              tabs.walkthrough = pSplit[0].replace(/^```[a-z]*\n/i, '').replace(/```$/i, '').trim();
+              if (pSplit.length > 1) {
+                  tabs.practice = pSplit[1].replace(/^```[a-z]*\n/i, '').replace(/```$/i, '').trim();
+              }
+          }
+      } else {
+          // Fallback if delimiters aren't used
+          tabs.guide = text;
+      }
     } catch (e) {
-      console.error("Failed to parse tabs JSON:", e);
+      console.error("Failed to parse tabs text:", e);
       tabs.guide = text; // Fallback
     }
 
